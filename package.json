@@ -20,7 +20,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.57.0",
-    "mcp-handler": "^2.3.0",
     "next": "15.5.4",
     "papaparse": "^5.7.0",
     "react": "19.1.0",
