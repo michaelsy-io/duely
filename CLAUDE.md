@@ -2,6 +2,8 @@
 
 AR-collections app for an ophthalmic medical distributor (AIM iMBA AI Tools final project). Next.js 15 App Router + Supabase + Vercel AI SDK.
 
+New here? Read `docs/PROJECT_OVERVIEW.md` first: how the project was built, the stack, the data and how it is processed.
+
 ## Rules
 - Code does the maths, AI does the words. Every number shown or sent comes from `lib/engine`; AI text must pass `verifyNumbers` (no amount/date/doc number absent from the engine payload).
 - Nothing reaches a client without supervisor approval; final notices also need top-management approval.
