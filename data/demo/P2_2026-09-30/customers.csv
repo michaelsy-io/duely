@@ -1,0 +1,61 @@
+client_code,segment,area,rep,collector,payment_terms_days,credit_limit,usual_payment_method,contact_role,client_since
+C001,Eye clinic,South Luzon,Rep A,Collector 2,60,1500000,Check (PDC),Clinic manager,2009
+C002,Hospital,NCR North,Rep C,Collector 1,90,16200000,Bank transfer,Accounts payable head,2009
+C003,Hospital,NCR South,Rep D,Collector 2,90,7550000,Bank transfer,Accounts payable head,2012
+C004,Hospital,North Luzon,Rep B,Collector 1,90,7350000,Bank transfer,Accounts payable head,2012
+C005,Hospital,Visayas,Rep C,Collector 3,90,9700000,Bank transfer,Accounts payable head,2018
+C006,Eye clinic,Visayas,Rep C,Collector 3,60,1750000,Check (PDC),Clinic manager,2019
+C007,Optical shop,NCR North,Rep A,Collector 1,30,450000,Check (PDC),Owner,2021
+C008,Hospital,North Luzon,Rep D,Collector 1,90,5350000,Bank transfer,Accounts payable head,2018
+C009,Eye clinic,NCR North,Rep D,Collector 1,30,1200000,Bank transfer,Clinic manager,2009
+C010,Eye clinic,Mindanao,Rep A,Collector 3,30,1250000,Bank transfer,Clinic manager,2016
+C011,Eye clinic,Visayas,Rep B,Collector 3,30,1600000,Check (PDC),Clinic manager,2014
+C012,Hospital,North Luzon,Rep C,Collector 1,90,4850000,Bank transfer,Accounts payable head,2021
+C013,Ambulatory surgical center,South Luzon,Rep B,Collector 2,60,1850000,Bank transfer,Finance officer,2008
+C014,Eye clinic,NCR South,Rep A,Collector 2,30,450000,Check (PDC),Clinic manager,2016
+C015,Eye clinic,North Luzon,Rep C,Collector 1,30,900000,Check (PDC),Clinic manager,2016
+C016,Eye clinic,Mindanao,Rep D,Collector 3,30,1100000,Check (PDC),Clinic manager,2008
+C017,Eye clinic,NCR North,Rep D,Collector 1,30,2300000,Check (PDC),Clinic manager,2015
+C018,Optical shop,Visayas,Rep A,Collector 3,30,450000,Check (PDC),Owner,2020
+C019,Eye clinic,NCR North,Rep A,Collector 1,30,950000,Check (PDC),Clinic manager,2018
+C020,Hospital,South Luzon,Rep B,Collector 2,90,9450000,Check (PDC),Accounts payable head,2016
+C021,Ambulatory surgical center,North Luzon,Rep C,Collector 1,60,3450000,Bank transfer,Finance officer,2013
+C022,Ambulatory surgical center,Mindanao,Rep B,Collector 3,60,3100000,Bank transfer,Finance officer,2022
+C023,Optical shop,South Luzon,Rep B,Collector 2,30,500000,Check (PDC),Owner,2011
+C024,Optical shop,NCR South,Rep D,Collector 2,30,500000,Check (PDC),Owner,2015
+C025,Optical shop,South Luzon,Rep A,Collector 2,30,300000,Cash,Owner,2011
+C026,Hospital,NCR South,Rep B,Collector 2,90,4100000,Bank transfer,Accounts payable head,2019
+C027,Ambulatory surgical center,NCR North,Rep C,Collector 1,60,2400000,Bank transfer,Finance officer,2017
+C028,Ambulatory surgical center,NCR North,Rep C,Collector 1,60,1900000,Bank transfer,Finance officer,2011
+C029,Hospital,South Luzon,Rep D,Collector 2,90,4650000,Check (PDC),Accounts payable head,2010
+C030,Hospital,Visayas,Rep A,Collector 3,90,4100000,Bank transfer,Accounts payable head,2020
+C031,Optical shop,NCR North,Rep D,Collector 1,30,550000,Check (PDC),Owner,2010
+C032,Eye clinic,Mindanao,Rep B,Collector 3,60,1700000,Check (PDC),Clinic manager,2008
+C033,Optical shop,Mindanao,Rep C,Collector 3,30,700000,Check (PDC),Owner,2017
+C034,Hospital,NCR North,Rep D,Collector 1,90,6050000,Check (PDC),Accounts payable head,2014
+C035,Optical shop,Visayas,Rep A,Collector 3,30,400000,Check (PDC),Owner,2013
+C036,Optical shop,Mindanao,Rep A,Collector 3,30,450000,Check (PDC),Owner,2016
+C037,Optical shop,Visayas,Rep B,Collector 3,30,350000,Cash,Owner,2016
+C038,Hospital,Visayas,Rep C,Collector 3,90,5650000,Bank transfer,Accounts payable head,2021
+C039,Eye clinic,NCR North,Rep D,Collector 1,30,950000,Bank transfer,Clinic manager,2020
+C040,Optical shop,Visayas,Rep B,Collector 3,30,250000,Check (PDC),Owner,2015
+C041,Optical shop,South Luzon,Rep A,Collector 2,30,900000,Check (PDC),Owner,2019
+C042,Eye clinic,Mindanao,Rep B,Collector 3,30,1150000,Check (PDC),Clinic manager,2021
+C043,Eye clinic,NCR South,Rep C,Collector 2,30,1850000,Bank transfer,Clinic manager,2017
+C044,Eye clinic,North Luzon,Rep D,Collector 1,30,1700000,Check (PDC),Clinic manager,2011
+C045,Eye clinic,NCR South,Rep D,Collector 2,30,950000,Bank transfer,Clinic manager,2020
+C046,Eye clinic,Mindanao,Rep A,Collector 3,30,900000,Check (PDC),Clinic manager,2016
+C047,Eye clinic,North Luzon,Rep B,Collector 1,60,2150000,Check (PDC),Clinic manager,2008
+C048,Hospital,South Luzon,Rep C,Collector 2,90,7550000,Bank transfer,Accounts payable head,2013
+C049,Optical shop,Mindanao,Rep E,Collector 3,30,550000,Check (PDC),Owner,2017
+C050,Optical shop,South Luzon,Rep E,Collector 2,30,550000,Check (PDC),Owner,2017
+C051,Eye clinic,South Luzon,Rep E,Collector 2,60,4950000,Check (PDC),Clinic manager,2009
+C052,Hospital,Mindanao,Rep E,Collector 3,90,10950000,Check (PDC),Accounts payable head,2013
+C053,Eye clinic,NCR North,Rep E,Collector 1,60,2900000,Check (PDC),Clinic manager,2016
+C054,Eye clinic,Mindanao,Rep E,Collector 3,30,4650000,Check (PDC),Clinic manager,2017
+C055,Optical shop,Mindanao,Rep E,Collector 3,30,500000,Check (PDC),Owner,2009
+C056,Eye clinic,NCR North,Rep E,Collector 1,30,1350000,Check (PDC),Clinic manager,2020
+C057,Hospital,North Luzon,Rep E,Collector 1,90,8800000,Bank transfer,Accounts payable head,2017
+C058,Optical shop,NCR South,Rep E,Collector 2,30,1850000,Check (PDC),Owner,2009
+C059,Optical shop,NCR North,Rep E,Collector 1,30,800000,Check (PDC),Owner,2017
+C060,Eye clinic,Visayas,Rep E,Collector 3,30,1300000,Bank transfer,Clinic manager,2011

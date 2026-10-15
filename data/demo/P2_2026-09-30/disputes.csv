@@ -1,0 +1,4 @@
+dispute_id,date_opened,client_code,inv_no,amount,reason,status,date_resolved,resolution
+DSP-031,2026-03-04,C001,INV-11211,18400.0,Short delivery,Resolved,2026-03-20,Resolved - missing items delivered
+DSP-036,2026-08-06,C019,INV-11932,86400.0,Pricing - billed list price instead of contract price,Resolved,2026-09-12,Resolved - credit memo for price difference
+DSP-038,2026-09-24,C044,INV-12208,191360.0,Pending return - near-expiry stock delivered,Open,,

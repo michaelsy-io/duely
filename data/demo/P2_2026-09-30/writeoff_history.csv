@@ -1,0 +1,19 @@
+writeoff_date,client,segment,amount,days_overdue_at_writeoff,approved_by
+2023-06-28,X2302,Eye clinic,111141.75,632,Top management with external accountant
+2023-06-28,X2304,Eye clinic,152759.27,455,Top management with external accountant
+2023-06-28,X2306,Optical shop,154080.22,673,Top management with external accountant
+2023-12-15,X2301,Eye clinic,72325.12,589,Top management with external accountant
+2023-12-15,X2303,Optical shop,148868.35,717,Top management with external accountant
+2023-12-15,X2305,Optical shop,50043.78,408,Top management with external accountant
+2024-06-28,X2402,Optical shop,142513.38,592,Top management with external accountant
+2024-06-28,X2404,Eye clinic,138626.33,592,Top management with external accountant
+2024-12-15,X2405,Optical shop,54599.03,511,Top management with external accountant
+2024-12-15,X2403,Optical shop,126351.18,505,Top management with external accountant
+2024-12-15,X2401,Optical shop,80397.19,464,Top management with external accountant
+2025-06-28,X2502,Eye clinic,110152.71,602,Top management with external accountant
+2025-06-28,X2504,Optical shop,130472.76,498,Top management with external accountant
+2025-06-28,X2506,Optical shop,27636.06,415,Top management with external accountant
+2025-12-15,X2501,Eye clinic,137493.31,383,Top management with external accountant
+2025-12-15,X2503,Optical shop,50098.33,459,Top management with external accountant
+2025-12-15,X2505,Optical shop,111148.27,416,Top management with external accountant
+2025-12-15,X2507,Eye clinic,149253.97,570,Top management with external accountant

@@ -1,0 +1,148 @@
+activity_date,client_code,collector,action,contact_role,outcome,promise_date,promise_amount
+2026-03-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C026,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C029,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C034,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C037,Collector 3,SMS,Owner,Reminder sent,,
+2026-03-08,C038,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-03-08,C042,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-03-08,C045,Collector 2,SMS,Clinic manager,Reminder sent,,
+2026-03-08,C046,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-03-09,C040,Collector 3,Demand letter,Owner,Sent by courier (approved by top management),,
+2026-03-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-03-15,338985.9
+2026-03-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-03-21,295656.2
+2026-03-12,C026,Collector 2,Call,Accounts payable head,Promised to pay,2026-03-25,344750.0
+2026-03-12,C029,Collector 2,Call,Accounts payable head,Promised to pay,2026-03-17,160455.4
+2026-03-12,C034,Collector 1,Call,Accounts payable head,Promised to pay,2026-03-18,241248.7
+2026-03-12,C037,Collector 3,Call,Owner,Promised to pay,2026-03-14,49690.0
+2026-03-12,C038,Collector 3,Call,Accounts payable head,Promised to pay,2026-03-15,149480.0
+2026-03-12,C042,Collector 3,Call,Clinic manager,Promised to pay,2026-03-16,181787.7
+2026-03-12,C045,Collector 2,Call,Clinic manager,Promised to pay,2026-03-23,355994.8
+2026-03-12,C046,Collector 3,Call,Clinic manager,Promised to pay,2026-03-18,170088.8
+2026-04-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C021,Collector 1,SMS,Finance officer,Reminder sent,,
+2026-04-08,C025,Collector 2,SMS,Owner,Reminder sent,,
+2026-04-08,C026,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C029,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C030,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C034,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-04-08,C035,Collector 3,SMS,Owner,Reminder sent,,
+2026-04-08,C042,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-04-08,C043,Collector 2,SMS,Clinic manager,Reminder sent,,
+2026-04-08,C046,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-04-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-04-15,605803.8
+2026-04-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-04-15,184073.4
+2026-04-12,C021,Collector 1,Call,Finance officer,Promised to pay,2026-04-14,247427.5
+2026-04-12,C025,Collector 2,Call,Owner,Promised to pay,2026-04-18,77454.5
+2026-04-12,C026,Collector 2,Call,Accounts payable head,Promised to pay,2026-04-14,274710.0
+2026-04-12,C029,Collector 2,Call,Accounts payable head,Promised to pay,2026-04-19,220990.0
+2026-04-12,C030,Collector 3,Call,Accounts payable head,Promised to pay,2026-04-21,339286.6
+2026-04-12,C034,Collector 1,Call,Accounts payable head,Promised to pay,2026-04-22,233440.2
+2026-04-12,C035,Collector 3,Call,Owner,Promised to pay,2026-04-17,55958.0
+2026-04-12,C042,Collector 3,Call,Clinic manager,Promised to pay,2026-04-16,111520.9
+2026-04-12,C043,Collector 2,Call,Clinic manager,Promised to pay,2026-04-15,407370.0
+2026-04-12,C046,Collector 3,Call,Clinic manager,Promised to pay,2026-04-13,530003.6
+2026-04-17,C002,Collector 1,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-04-17,C004,Collector 1,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-04-20,C040,Collector 3,Visit,Owner,Store permanently closed; owner unreachable,,
+2026-05-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C008,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C020,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C021,Collector 1,SMS,Finance officer,Reminder sent,,
+2026-05-08,C026,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C034,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-05-08,C048,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-05-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-05-16,389435.6
+2026-05-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-05-26,207505.2
+2026-05-12,C008,Collector 1,Call,Accounts payable head,Promised to pay,2026-05-17,309690.0
+2026-05-12,C020,Collector 2,Call,Accounts payable head,Promised to pay,2026-05-17,452863.9
+2026-05-12,C021,Collector 1,Call,Finance officer,Promised to pay,2026-05-19,267292.0
+2026-05-12,C026,Collector 2,Call,Accounts payable head,Promised to pay,2026-05-15,177614.32
+2026-05-12,C034,Collector 1,Call,Accounts payable head,Promised to pay,2026-05-14,265906.1
+2026-05-12,C048,Collector 2,Call,Accounts payable head,Promised to pay,2026-05-15,387097.9
+2026-05-17,C026,Collector 2,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-06-01,C036,Collector 3,SMS,Owner,Reminder sent,,
+2026-06-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-06-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-06-08,C009,Collector 1,SMS,Clinic manager,Reminder sent,,
+2026-06-08,C010,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-06-08,C030,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-06-08,C033,Collector 3,SMS,Owner,Reminder sent,,
+2026-06-08,C034,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-06-08,C038,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-06-08,C043,Collector 2,SMS,Clinic manager,Reminder sent,,
+2026-06-08,C045,Collector 2,SMS,Clinic manager,Reminder sent,,
+2026-06-08,C048,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-06-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-06-15,764185.4
+2026-06-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-06-15,254417.8
+2026-06-12,C009,Collector 1,Call,Clinic manager,Promised to pay,2026-06-16,267363.6
+2026-06-12,C010,Collector 3,Call,Clinic manager,Promised to pay,2026-06-14,270137.0
+2026-06-12,C030,Collector 3,Call,Accounts payable head,Promised to pay,2026-06-19,222634.4
+2026-06-12,C033,Collector 3,Call,Owner,Promised to pay,2026-06-19,258572.9
+2026-06-12,C034,Collector 1,Call,Accounts payable head,Promised to pay,2026-06-17,395866.7
+2026-06-12,C038,Collector 3,Call,Accounts payable head,Promised to pay,2026-06-14,156480.0
+2026-06-12,C043,Collector 2,Call,Clinic manager,Promised to pay,2026-06-13,213570.0
+2026-06-12,C045,Collector 2,Call,Clinic manager,Promised to pay,2026-06-20,188326.6
+2026-06-12,C048,Collector 2,Call,Accounts payable head,Promised to pay,2026-06-15,276944.7
+2026-06-17,C002,Collector 1,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-06-20,C036,Collector 3,Call,Owner,Owner says sales are slow,,
+2026-07-03,C014,Collector 2,SMS,Clinic manager,Reminder sent,,
+2026-07-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C008,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C020,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C026,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C034,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C035,Collector 3,SMS,Owner,Reminder sent,,
+2026-07-08,C038,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-07-08,C048,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-07-10,C036,Collector 3,Call,Owner,Partial settlement of older invoice received,,
+2026-07-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-07-17,502896.5
+2026-07-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-07-15,146951.0
+2026-07-12,C008,Collector 1,Call,Accounts payable head,Promised to pay,2026-07-15,157350.0
+2026-07-12,C020,Collector 2,Call,Accounts payable head,Promised to pay,2026-07-22,247786.5
+2026-07-12,C026,Collector 2,Call,Accounts payable head,Promised to pay,2026-07-15,127720.0
+2026-07-12,C034,Collector 1,Call,Accounts payable head,Promised to pay,2026-07-24,309177.8
+2026-07-12,C035,Collector 3,Call,Owner,Promised to pay,2026-07-18,42571.2
+2026-07-12,C038,Collector 3,Call,Accounts payable head,Promised to pay,2026-07-15,189290.0
+2026-07-12,C048,Collector 2,Call,Accounts payable head,Promised to pay,2026-07-15,102732.7
+2026-07-15,C014,Collector 2,Call,Clinic manager,Promised PDC for oldest invoice,,
+2026-07-17,C048,Collector 2,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-08-03,C005,Collector 3,Call,Accounts payable head,Hospital awaiting fund release,,
+2026-08-05,C036,Collector 3,Call,Owner,No answer,,
+2026-08-08,C002,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C004,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C008,Collector 1,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C019,Collector 1,SMS,Clinic manager,Reminder sent,,
+2026-08-08,C026,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C030,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C035,Collector 3,SMS,Owner,Reminder sent,,
+2026-08-08,C037,Collector 3,SMS,Owner,Reminder sent,,
+2026-08-08,C038,Collector 3,SMS,Accounts payable head,Reminder sent,,
+2026-08-08,C046,Collector 3,SMS,Clinic manager,Reminder sent,,
+2026-08-08,C048,Collector 2,SMS,Accounts payable head,Reminder sent,,
+2026-08-10,C023,Collector 2,SMS,Owner,Reminder sent,,
+2026-08-12,C002,Collector 1,Call,Accounts payable head,Promised to pay,2026-08-15,621934.9
+2026-08-12,C004,Collector 1,Call,Accounts payable head,Promised to pay,2026-08-15,321018.6
+2026-08-12,C007,Collector 1,Call,Owner,Client issued PDCs dated 9 and 16 Sep for overdue invoices,,
+2026-08-12,C008,Collector 1,Call,Accounts payable head,Promised to pay,2026-08-15,385540.0
+2026-08-12,C019,Collector 1,Call,Clinic manager,Promised to pay,2026-09-20,70848.0
+2026-08-12,C026,Collector 2,Call,Accounts payable head,Promised to pay,2026-08-16,190340.0
+2026-08-12,C030,Collector 3,Call,Accounts payable head,Promised to pay,2026-08-13,320604.4
+2026-08-12,C035,Collector 3,Call,Owner,Promised to pay,2026-08-14,45717.0
+2026-08-12,C037,Collector 3,Call,Owner,Promised to pay,2026-08-13,42980.0
+2026-08-12,C038,Collector 3,Call,Accounts payable head,Promised to pay,2026-08-22,206670.0
+2026-08-12,C046,Collector 3,Call,Clinic manager,Promised to pay,2026-08-20,622770.4
+2026-08-12,C048,Collector 2,Call,Accounts payable head,Promised to pay,2026-08-15,257602.9
+2026-08-14,C014,Collector 2,Call,Clinic manager,Check returned (DAIF); client to replace,,
+2026-08-17,C002,Collector 1,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-08-17,C008,Collector 1,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-08-17,C014,Collector 2,Visit,Clinic manager,Promised to pay,2026-08-25,230000.0
+2026-08-17,C048,Collector 2,Call,Accounts payable head,Promise missed; client asked for more time,,
+2026-08-19,C036,Collector 3,Call,Owner,No answer,,
+2026-08-20,C003,Collector 2,Call,Accounts payable head,AP head says budget release delayed,,
+2026-08-26,C019,Collector 1,SMS,Clinic manager,Follow-up reminder sent,,
+2026-08-27,C014,Collector 2,Call,Clinic manager,Promise missed; client asked for more time,,

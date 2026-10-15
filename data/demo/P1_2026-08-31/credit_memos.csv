@@ -1,0 +1,23 @@
+memo_no,memo_date,client_code,inv_no,rep,amount,reason,approver_role
+CM-401,2025-10-03,C038,INV-10561,Rep C,17113.66,Return - wrong item delivered,Sales Manager
+CM-402,2025-10-07,C015,INV-10477,Rep C,7595.7,Pricing adjustment,Sales Manager
+CM-403,2025-11-01,C034,INV-10571,Rep D,27949.14,Return - near-expiry stock,Finance Head
+CM-404,2025-11-17,C039,INV-10746,Rep D,43753.78,Return - wrong item delivered,Finance Head
+CM-405,2025-11-18,C048,INV-10646,Rep C,40274.51,Return - wrong item delivered,Finance Head
+CM-406,2025-11-26,C038,INV-10737,Rep C,44282.45,Return - wrong item delivered,Finance Head
+CM-407,2025-12-24,C006,INV-10844,Rep C,6546.56,Pricing adjustment,Sales Manager
+CM-408,2025-12-25,C004,INV-10969,Rep B,12553.65,Return - near-expiry stock,Sales Manager
+CM-409,2025-12-27,C032,INV-10902,Rep B,11991.84,Return - damaged goods,Sales Manager
+CM-410,2026-02-07,C026,INV-11170,Rep B,22945.68,Return - damaged goods,Finance Head
+CM-411,2026-02-07,C004,INV-11064,Rep B,30069.8,Return - wrong item delivered,Finance Head
+CM-412,2026-03-04,C048,INV-11167,Rep C,10131.99,Pricing adjustment,Sales Manager
+CM-413,2026-04-05,C018,INV-11396,Rep A,23437.66,Pricing adjustment,Finance Head
+CM-414,2026-04-21,C037,INV-11546,Rep B,5341.9,Return - damaged goods,Sales Manager
+CM-415,2026-04-21,C020,INV-11392,Rep B,16557.9,Pricing adjustment,Sales Manager
+CM-416,2026-04-29,C030,INV-11529,Rep A,22595.51,Return - near-expiry stock,Finance Head
+CM-417,2026-05-08,C033,INV-11551,Rep C,30455.61,Return - near-expiry stock,Finance Head
+CM-418,2026-06-22,C038,INV-11852,Rep C,23616.78,Return - damaged goods,Finance Head
+CM-419,2026-07-03,C043,INV-11802,Rep C,30733.33,Return - wrong item delivered,Finance Head
+CM-420,2026-07-15,C020,INV-11973,Rep B,10301.6,Return - wrong item delivered,Sales Manager
+CM-421,2026-07-15,C004,INV-11949,Rep B,51707.41,Pricing adjustment,Finance Head
+CM-422,2026-08-20,C009,INV-11960,Rep D,27500.0,Return - damaged goods,
