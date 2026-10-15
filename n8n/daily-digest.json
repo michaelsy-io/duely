@@ -1,0 +1,77 @@
+{
+  "name": "Duely – Daily collector digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "0 8 * * 1-5" }
+          ]
+        }
+      },
+      "id": "a1f0c7d2-0001-4c1e-9a10-000000000001",
+      "name": "Weekdays 08:00 Manila",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_URL }}/api/hooks/digest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-hook-secret", "value": "={{ $env.HOOK_SECRET }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"notify\": true }",
+        "options": {}
+      },
+      "id": "a1f0c7d2-0002-4c1e-9a10-000000000002",
+      "name": "Build digest (Duely)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "digests",
+        "options": {}
+      },
+      "id": "a1f0c7d2-0003-4c1e-9a10-000000000003",
+      "name": "One item per collector",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.DIGEST_EMAIL_TO || 'collections@example.ph' }}",
+        "subject": "={{ $('Build digest (Duely)').item.json.subject }} – {{ $json.collector }}",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "a1f0c7d2-0004-4c1e-9a10-000000000004",
+      "name": "Email collector (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [720, 0],
+      "credentials": {
+        "gmailOAuth2": { "id": "REPLACE_ME", "name": "Gmail account (set after import)" }
+      }
+    }
+  ],
+  "connections": {
+    "Weekdays 08:00 Manila": { "main": [[{ "node": "Build digest (Duely)", "type": "main", "index": 0 }]] },
+    "Build digest (Duely)": { "main": [[{ "node": "One item per collector", "type": "main", "index": 0 }]] },
+    "One item per collector": { "main": [[{ "node": "Email collector (Gmail)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "Asia/Manila" },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}

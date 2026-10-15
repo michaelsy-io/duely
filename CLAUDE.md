@@ -8,7 +8,7 @@ AR-collections app for an ophthalmic medical distributor (AIM iMBA AI Tools fina
 - Engine = Kopi's `data/demo/business_rules.md` as implemented in `tests/fixtures/answer-key/compute_reference.py`. All thresholds in `lib/engine/rules.ts`.
 - `tests/fixtures/answer-key/` is for tests only. Never import it from app code, seed it, or index it for RAG.
 - Dates are ISO strings; the "as of" date comes from the demo clock, never `new Date()` inside the engine.
-- App must work with no AI key (show engine reason text; drafts say "Draft unavailable").
+- App must work with no AI key (show engine reason text; drafts fall back to engine-filled templates, still sent for approval).
 - Client names/contacts in `data/seed` are fictional demo data.
 
 ## Commands

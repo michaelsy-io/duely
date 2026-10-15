@@ -1,0 +1,84 @@
+{
+  "name": "Duely – PDC & promise reminders (hourly)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      },
+      "id": "b2e1d8e3-0001-4d2f-8b20-000000000001",
+      "name": "Every hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_URL }}/api/hooks/due",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-hook-secret", "value": "={{ $env.HOOK_SECRET }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"notify\": true }",
+        "options": {}
+      },
+      "id": "b2e1d8e3-0002-4d2f-8b20-000000000002",
+      "name": "Check due items (Duely)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c0ffee00-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.hasItems }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2e1d8e3-0003-4d2f-8b20-000000000003",
+      "name": "Anything due?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.DIGEST_EMAIL_TO || 'collections@example.ph' }}",
+        "subject": "=Duely: due reminders {{ $json.asOf }}",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "b2e1d8e3-0004-4d2f-8b20-000000000004",
+      "name": "Email team (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [720, -80],
+      "credentials": {
+        "gmailOAuth2": { "id": "REPLACE_ME", "name": "Gmail account (set after import)" }
+      }
+    }
+  ],
+  "connections": {
+    "Every hour": { "main": [[{ "node": "Check due items (Duely)", "type": "main", "index": 0 }]] },
+    "Check due items (Duely)": { "main": [[{ "node": "Anything due?", "type": "main", "index": 0 }]] },
+    "Anything due?": { "main": [[{ "node": "Email team (Gmail)", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "Asia/Manila" },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}
