@@ -25,7 +25,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const collectorOf = Object.fromEntries(cust.map((c) => [c.client_code, c.collector]));
 
   const rows = rowsFor(result, session.collector);
-  const totalOverdue = sum(rows, (r) => r.overdue);
+  // Everyone without a collector filter sees the same company-wide figure as the CFO page.
+  const totalOverdue = session.collector ? sum(rows, (r) => r.overdue) : result.kpis.overdueExclDisputes;
   const covered = sum(rows, (r) => Math.min(r.overdue, r.pdcCover + (r.openPromise?.amount ?? 0)));
   const noContact = rows.filter((r) => has(r, /no contact/i)).length;
   const broken = rows.filter((r) => has(r, /broke a promise/i)).length;
