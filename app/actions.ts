@@ -37,6 +37,8 @@ export async function setTheme(name: string) {
 async function applyRole(role: Role, collector: string | null) {
   const jar = await cookies();
   jar.set("duely_role", role, opts);
+  // Signing in or switching role starts on the latest month with data, not a month picked earlier.
+  jar.delete(PERIOD_COOKIE);
   if (collector) jar.set("duely_collector", collector, opts);
   else jar.delete("duely_collector");
 }
@@ -60,5 +62,6 @@ export async function signOut() {
   const jar = await cookies();
   jar.delete("duely_role");
   jar.delete("duely_collector");
+  jar.delete(PERIOD_COOKIE);
   redirect("/login");
 }
