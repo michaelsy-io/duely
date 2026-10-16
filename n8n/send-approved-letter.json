@@ -1,0 +1,155 @@
+{
+  "name": "Duely \u00b7 Send approved letter (test inbox)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "duely-letter",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b2f0c7d2-0001-4c1e-9a10-000000000001",
+      "name": "Approved letter (from Duely)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "duely-letter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.headers['x-hook-secret'] }}",
+              "rightValue": "={{ $env.HOOK_SECRET }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2f0c7d2-0002-4c1e-9a10-000000000002",
+      "name": "Secret matches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $env.TEST_INBOX }}",
+        "subject": "=[Duely TEST] {{ $('Approved letter (from Duely)').item.json.body.subject || 'Payment reminder' }} \u00b7 {{ $('Approved letter (from Duely)').item.json.body.client_name }}",
+        "emailType": "text",
+        "message": "=TEST SEND. In production this {{ $('Approved letter (from Duely)').item.json.body.tone }} {{ $('Approved letter (from Duely)').item.json.body.channel || 'email' }} would go to {{ $('Approved letter (from Duely)').item.json.body.client_name }} ({{ $('Approved letter (from Duely)').item.json.body.client_code }}). Approved by {{ $('Approved letter (from Duely)').item.json.body.approved_by }}.\n\n----------------------------------------\n\n{{ $('Approved letter (from Duely)').item.json.body.body }}",
+        "options": {}
+      },
+      "id": "b2f0c7d2-0003-4c1e-9a10-000000000003",
+      "name": "Email test copy (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        -80
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail account (set after import)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true}",
+        "options": {}
+      },
+      "id": "b2f0c7d2-0004-4c1e-9a10-000000000004",
+      "name": "Reply OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"error\": \"Unauthorized\"}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "b2f0c7d2-0005-4c1e-9a10-000000000005",
+      "name": "Reply 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Approved letter (from Duely)": {
+      "main": [
+        [
+          {
+            "node": "Secret matches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Secret matches?": {
+      "main": [
+        [
+          {
+            "node": "Email test copy (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email test copy (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Reply OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

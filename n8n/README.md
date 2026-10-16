@@ -5,6 +5,7 @@ Two workflows call Duely's hook endpoints. Duely does all the maths (engine); n8
 | File | Trigger | Calls | Then |
 | --- | --- | --- | --- |
 | `daily-digest.json` | Weekdays 08:00 (Asia/Manila) | `POST {APP_URL}/api/hooks/digest` | Splits `digests[]` and emails each collector their brief |
+| `send-approved-letter.json` | Webhook, called by Duely when a supervisor approves a letter | n/a | Checks `x-hook-secret`, then emails a **test copy** to `TEST_INBOX`. Never emails the client. |
 | `due-reminders.json` | Every hour | `POST {APP_URL}/api/hooks/due` | If `hasItems`, emails the team (PDCs due within 2 days, promises due today) |
 
 Both endpoints also create in-app notifications (`collector` / `supervisor` roles). Send `{"notify": false}` to get the JSON only. Optional `{"period": "P1" | "P2"}`; default is P1. "Today" is the demo clock (the period's as-of date), so the hourly workflow repeats the same reminders — set it inactive or `notify: false` for long-running demos.
@@ -16,9 +17,11 @@ Both endpoints also create in-app notifications (`collector` / `supervisor` role
    - `APP_URL` — e.g. `https://duely.vercel.app` (no trailing slash)
    - `HOOK_SECRET` — same value as the Duely deployment's `HOOK_SECRET`
    - `DIGEST_EMAIL_TO` — optional recipient (defaults to a placeholder)
+   - `TEST_INBOX` — your own address; approved letters are emailed here as test copies
    If your n8n plan blocks `$env`, paste the values directly into the HTTP Request node URL/header.
 3. Open the **Gmail** node, pick or create a Gmail OAuth2 credential (the imported one is a placeholder `REPLACE_ME`). Any other email/Slack node works too: the digest JSON has `subject`, `text`, and per-collector `digests[].text`.
-4. Click **Execute workflow** once to test, then toggle **Active**.
+4. For `send-approved-letter.json`, activate it and copy its **Production URL** (ends in `/webhook/duely-letter`). In Vercel set `N8N_LETTER_WEBHOOK_URL` to that URL and redeploy. Without it, approvals simply skip the email.
+5. Click **Execute workflow** once to test, then toggle **Active**.
 
 ## Test without n8n
 

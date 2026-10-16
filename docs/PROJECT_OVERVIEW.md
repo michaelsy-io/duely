@@ -181,6 +181,7 @@ Environment variables (`.env.local` locally, Vercel project settings in producti
 | `AI_PROVIDER`, `AI_MODEL_SMART`, `AI_MODEL_FAST` | optional | force a provider or model |
 | `MCP_TOKEN` | for MCP | bearer token for `/api/mcp/mcp` |
 | `HOOK_SECRET` | for n8n | the hooks return 503 without it |
+| `N8N_LETTER_WEBHOOK_URL` | optional | n8n webhook that emails a test copy of each approved letter to your own inbox |
 
 Never commit keys. `.env*` files are gitignored.
 

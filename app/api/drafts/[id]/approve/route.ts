@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDraft, setDraftStatus } from "@/lib/db/drafts";
+import { sendApprovedLetter } from "@/lib/n8n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,5 +21,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
   const by = body.by ? (draft.needs_top_mgmt ? `${body.by} (top management)` : body.by) : undefined;
   const updated = await setDraftStatus(id, "approved", by);
-  return NextResponse.json({ draft: updated });
+  // Test delivery through n8n: emails a copy to the team's own inbox, never to the client.
+  const delivery = updated ? await sendApprovedLetter(updated) : "skipped";
+  return NextResponse.json({ draft: updated, delivery });
 }
