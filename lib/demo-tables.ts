@@ -33,13 +33,18 @@ function parseCsv(text: string): Row[] {
   return rows.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ""])));
 }
 
-export const readTable = cache(async (period: Period, name: string): Promise<Row[]> => {
-  const file = path.join(process.cwd(), "data", "demo", PERIODS[period].folder, `${name}.csv`);
-  try {
-    return parseCsv(await fs.readFile(file, "utf8"));
-  } catch {
-    return [];
+// Demo CSVs never change at runtime, so parse each file once per server instance.
+const tableCache = new Map<string, Promise<Row[]>>();
+
+export const readTable = cache((period: Period, name: string): Promise<Row[]> => {
+  const key = `${period}/${name}`;
+  let hit = tableCache.get(key);
+  if (!hit) {
+    const file = path.join(process.cwd(), "data", "demo", PERIODS[period].folder, `${name}.csv`);
+    hit = fs.readFile(file, "utf8").then(parseCsv, () => [] as Row[]);
+    tableCache.set(key, hit);
   }
+  return hit;
 });
 
 export interface Invoice { inv_no: string; invoice_date: string; due_date: string; balance: number; days_overdue: number; bucket: string }

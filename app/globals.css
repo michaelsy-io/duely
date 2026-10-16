@@ -138,3 +138,12 @@ html[data-list="cards"] .list-group > * + * { border-top: 1px solid var(--border
   .anim-fade, .page-enter, .stagger-in, .grow-x { animation: none; }
   .btn:active { transform: none; }
 }
+
+/* Loading placeholder (app/(app)/loading.tsx) */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, color-mix(in oklab, var(--color-border) 60%, var(--color-surface)) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
