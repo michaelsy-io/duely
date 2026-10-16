@@ -6,6 +6,8 @@ import { PERIODS } from "@/lib/session";
 import { clientName } from "@/lib/clients";
 import { BUCKETS, bucketColor, fmtDate, peso, pesoShort, pct } from "@/lib/format";
 import { Card, SectionTitle } from "@/components/ui";
+import { CountUp } from "@/components/motion/CountUp";
+import { GrowBar } from "@/components/motion/Grow";
 
 export const metadata: Metadata = { title: "CFO view" };
 
@@ -58,15 +60,15 @@ export default async function CfoPage() {
       </div>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Tile tone="primary" label="Total receivables" value={pesoShort(k.totalAr)} note={<>Ledger {peso(k.ledgerAr)} · gap {peso(r.control.gap)}</>} />
-        <Tile label="Days sales outstanding" value={<>{k.dso.toFixed(1)}<span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
-        <Tile label="Collection efficiency" value={pct(k.collectionEfficiency)} note="Collected this month vs collectible" delta={<Delta now={k.collectionEfficiency} prev={pk?.collectionEfficiency} dir="higher-better" fmt={pp} />} />
-        <Tile label="Over 60 / over 90 days" value={<>{pct(k.pctOver60)} <span className="text-fg-subtle">/</span> {pct(k.pctOver90)}</>} note="Share of total receivables" delta={<Delta now={k.pctOver60} prev={pk?.pctOver60} dir="lower-better" fmt={pp} />} />
-        <Tile label="At risk" value={peso(k.atRisk)} note="90+ days plus unreplaced bounced checks" delta={<Delta now={k.atRisk} prev={pk?.atRisk} dir="lower-better" fmt={pesoShort} />} />
+        <Tile tone="primary" label="Total receivables" value={<CountUp value={k.totalAr} text={pesoShort(k.totalAr)} format="pesoShort" />} note={<>Ledger {peso(k.ledgerAr)} · gap {peso(r.control.gap)}</>} />
+        <Tile label="Days sales outstanding" value={<><CountUp value={k.dso} text={k.dso.toFixed(1)} format="fixed" digits={1} /><span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
+        <Tile label="Collection efficiency" value={<CountUp value={k.collectionEfficiency} text={pct(k.collectionEfficiency)} format="pct" />} note="Collected this month vs collectible" delta={<Delta now={k.collectionEfficiency} prev={pk?.collectionEfficiency} dir="higher-better" fmt={pp} />} />
+        <Tile label="Over 60 / over 90 days" value={<><CountUp value={k.pctOver60} text={pct(k.pctOver60)} format="pct" /> <span className="text-fg-subtle">/</span> <CountUp value={k.pctOver90} text={pct(k.pctOver90)} format="pct" /></>} note="Share of total receivables" delta={<Delta now={k.pctOver60} prev={pk?.pctOver60} dir="lower-better" fmt={pp} />} />
+        <Tile label="At risk" value={<CountUp value={k.atRisk} text={peso(k.atRisk)} format="peso" />} note="90+ days plus unreplaced bounced checks" delta={<Delta now={k.atRisk} prev={pk?.atRisk} dir="lower-better" fmt={pesoShort} />} />
         <Tile
           tone={gap < 0 ? "bad" : undefined}
           label="Est. bad debt vs allowance"
-          value={peso(k.estimatedBadDebt)}
+          value={<CountUp value={k.estimatedBadDebt} text={peso(k.estimatedBadDebt)} format="peso" />}
           note={gap < 0 ? <>Allowance {peso(k.allowance)} is short by {peso(-gap)}</> : <>Allowance {peso(k.allowance)} covers it with {peso(gap)} to spare</>}
           delta={<Delta now={k.estimatedBadDebt} prev={pk?.estimatedBadDebt} dir="lower-better" fmt={pesoShort} />}
         />
@@ -75,17 +77,19 @@ export default async function CfoPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <SectionTitle title="Aging" sub={`Overdue excl. disputes ${peso(k.overdueExclDisputes)}`} />
-          <div className="mb-5 flex h-4 overflow-hidden rounded-pill" aria-hidden="true">
-            {BUCKETS.map((b) => <span key={b} style={{ width: `${(k.buckets[b] / totalB) * 100}%`, background: bucketColor(b) }} />)}
+          <div className="mb-5 h-4 overflow-hidden rounded-pill" aria-hidden="true">
+            <GrowBar as="div" axis="x" className="flex h-full w-full">
+              {BUCKETS.map((b) => <span key={b} style={{ width: `${(k.buckets[b] / totalB) * 100}%`, background: bucketColor(b) }} />)}
+            </GrowBar>
           </div>
           <ul className="flex flex-col gap-3">
-            {BUCKETS.map((b) => {
+            {BUCKETS.map((b, i) => {
               const max = Math.max(...BUCKETS.map((x) => k.buckets[x]));
               return (
                 <li key={b} className="grid grid-cols-[72px_1fr_auto] items-center gap-3 text-sm">
                   <span className="font-bold">{b === "Current" ? "Current" : `${b} d`}</span>
                   <span className="h-7 overflow-hidden rounded-lg bg-surface-2">
-                    <span className="block h-full rounded-lg" style={{ width: `${Math.max(0.8, (k.buckets[b] / max) * 100)}%`, background: bucketColor(b) }} />
+                    <GrowBar axis="x" delay={i * 0.06} className="block h-full rounded-lg" style={{ width: `${Math.max(0.8, (k.buckets[b] / max) * 100)}%`, background: bucketColor(b) }} />
                   </span>
                   <span className="num w-[120px] text-right font-bold">{peso(k.buckets[b])}<span className="block text-[11px] font-semibold text-fg-subtle">loss rate {pct(k.lossRates[b], 2)}</span></span>
                 </li>
@@ -100,11 +104,11 @@ export default async function CfoPage() {
             {r.inflow.map((w, i) => (
               <div key={w.label} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
                 <span className="num text-xs font-extrabold sm:text-sm">{pesoShort(w.total)}</span>
-                <div className="flex w-full max-w-[72px] flex-col-reverse overflow-hidden rounded-xl" style={{ height: `${(w.total / maxInflow) * 78}%` }}>
+                <GrowBar as="div" axis="y" delay={i * 0.08} className="flex w-full max-w-[72px] flex-col-reverse overflow-hidden rounded-xl" style={{ height: `${(w.total / maxInflow) * 78}%` }}>
                   <span className="bg-primary" style={{ height: `${(w.pdcs / w.total) * 100}%` }} title={`Checks ${peso(w.pdcs)}`} />
                   <span className="bg-warn" style={{ height: `${(w.promises / w.total) * 100}%` }} title={`Promises ${peso(w.promises)}`} />
                   <span className="bg-accent" style={{ height: `${(w.currentInvoices / w.total) * 100}%` }} title={`Invoices due ${peso(w.currentInvoices)}`} />
-                </div>
+                </GrowBar>
                 <span className={clsx("text-xs font-bold", w.total < avgInflow * 0.8 ? "text-bad-fg" : "text-fg-muted")}>Week {i + 1}</span>
                 <span className="-mt-1.5 text-[10px] text-fg-subtle">{fmtDate(w.start, "d MMM")}</span>
               </div>

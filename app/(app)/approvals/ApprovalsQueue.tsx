@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { Check, CheckCircle2, Inbox, Loader2, RefreshCw, ShieldAlert, Sparkles, X } from "lucide-react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
+import { burstConfettiFrom } from "@/components/motion/confetti";
 
 interface Review { verdict?: string; issues?: string[]; unknownNumbers?: string[]; checks?: Record<string, boolean>; critique?: string }
 interface Draft {
@@ -12,6 +14,21 @@ interface Draft {
 }
 
 const CHECK_LABEL: Record<string, string> = { numbers: "Numbers match engine", legal: "No legal threats", length: "Length OK" };
+
+type Decision = "approve" | "reject" | null;
+const EASE = [0.16, 1, 0.3, 1] as const;
+/** Decided drafts leave sideways: right for approve, left for reject; a plain fade when just switching drafts. */
+const leave = (d: Decision, dist: number) => ({ opacity: 0, x: d === "approve" ? dist : d === "reject" ? -dist : 0, transition: { duration: d ? 0.2 : 0.12, ease: EASE } });
+const cardVariants: Variants = {
+  initial: { opacity: 0, y: 8 },
+  enter: { opacity: 1, y: 0, x: 0, transition: { duration: 0.24, ease: EASE } },
+  exit: (d: Decision) => leave(d, 56),
+};
+const rowVariants: Variants = {
+  initial: { opacity: 0 },
+  enter: { opacity: 1, x: 0 },
+  exit: (d: Decision) => leave(d, 24),
+};
 
 export function ApprovalsQueue({ period, role, by, names, escalations }: {
   period: string; role: string; by: string;
@@ -25,6 +42,7 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ tone: "good" | "bad" | "warn"; text: string } | null>(null);
   const [tab, setTab] = useState<"pending" | "done">("pending");
+  const [lastDecision, setLastDecision] = useState<Decision>(null);
 
   const load = useCallback(async () => {
     try {
@@ -45,6 +63,7 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
   const done = useMemo(() => (drafts ?? []).filter((d) => !(d.status === "pending" || d.status === "needs_edit")), [drafts]);
   const list = tab === "pending" ? pending : done;
   const current = list.find((d) => d.id === sel) ?? list[0] ?? null;
+  const listKey = list.map((d) => d.id).join();
 
   useEffect(() => { setEdit(current?.body ?? ""); setMsg(null); }, [current?.id, current?.body]);
 
@@ -63,13 +82,17 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
     }
   }
 
-  async function decide(d: Draft, action: "approve" | "reject", topMgmt = false) {
+  async function decide(d: Draft, action: "approve" | "reject", topMgmt = false, from?: Element | null) {
     setBusy(d.id + action);
+    setLastDecision(null);
     setMsg(null);
     try {
       const r = await fetch(`/api/drafts/${d.id}/${action}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(action === "approve" ? { by, top_mgmt: topMgmt } : { by }) });
       const j = (await r.json().catch(() => ({}))) as { error?: string };
       if (!r.ok) throw new Error(j.error || "Could not save");
+      // Only after the server route has accepted the decision: animate it away (and celebrate approvals).
+      setLastDecision(action);
+      if (action === "approve") burstConfettiFrom(from);
       setMsg({ tone: action === "approve" ? "good" : "warn", text: action === "approve" ? "Approved. Ready to send." : "Rejected. The collector will be told." });
       await load();
     } catch (e) {
@@ -86,8 +109,9 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex rounded-pill bg-surface-3 p-1" role="tablist" aria-label="Queue">
           {(["pending", "done"] as const).map((t) => (
-            <button key={t} role="tab" aria-selected={tab === t} type="button" onClick={() => { setTab(t); setSel(null); }} className={clsx("min-h-[40px] rounded-pill px-4 text-sm font-bold", tab === t ? "bg-surface text-fg shadow-sm" : "text-fg-muted")}>
-              {t === "pending" ? `Waiting (${pending.length})` : `Decided (${done.length})`}
+            <button key={t} role="tab" aria-selected={tab === t} type="button" onClick={() => { setTab(t); setSel(null); setLastDecision(null); }} className={clsx("relative min-h-[40px] rounded-pill px-4 text-sm font-bold transition-colors", tab === t ? "text-fg" : "text-fg-muted")}>
+              {tab === t && <motion.span layoutId="approvals-tab" aria-hidden="true" className="absolute inset-0 rounded-pill bg-surface shadow-sm" transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
+              <span className="relative">{t === "pending" ? `Waiting (${pending.length})` : `Decided (${done.length})`}</span>
             </button>
           ))}
         </div>
@@ -99,7 +123,7 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
       </div>
 
       {msg && (
-        <p role="status" className={clsx("rounded-2xl px-4 py-3 text-sm font-semibold", { good: "bg-good-soft text-good-fg", bad: "bg-bad-soft text-bad-fg", warn: "bg-warn-soft text-warn-fg" }[msg.tone])}>{msg.text}</p>
+        <p role="status" className={clsx("anim-fade rounded-2xl px-4 py-3 text-sm font-semibold", { good: "bg-good-soft text-good-fg", bad: "bg-bad-soft text-bad-fg", warn: "bg-warn-soft text-warn-fg" }[msg.tone])}>{msg.text}</p>
       )}
 
       {drafts === null ? (
@@ -112,12 +136,18 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
-          <div className="list-group self-start" role="listbox" aria-label="Drafts">
+          <div className="list-group relative self-start" role="listbox" aria-label="Drafts">
+            <AnimatePresence initial={false} mode="popLayout" custom={lastDecision}>
             {list.map((d) => {
               const n = names[d.client_code];
               const active = current?.id === d.id;
               return (
-                <button key={d.id} role="option" aria-selected={active} type="button" onClick={() => setSel(d.id)} className={clsx("pad-y flex w-full items-center gap-3 px-4 text-left transition-colors", active ? "bg-primary-soft" : "hover:bg-surface-2")}>
+                <motion.button
+                  key={d.id} role="option" aria-selected={active} type="button" onClick={() => { setSel(d.id); setLastDecision(null); }}
+                  layout="position" layoutDependency={listKey} custom={lastDecision} variants={rowVariants} initial="initial" animate="enter" exit="exit"
+                  transition={{ duration: 0.2, ease: EASE, layout: { type: "spring", stiffness: 500, damping: 42 } }}
+                  className={clsx("pad-y flex w-full items-center gap-3 px-4 text-left transition-colors", active ? "bg-primary-soft" : "hover:bg-surface-2")}
+                >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[15px] font-bold">{n?.name ?? d.client_code}</span>
                     <span className="block truncate text-[13px] text-fg-muted">{d.client_code} · {d.tone} {d.channel ?? ""}{n ? ` · ${n.overdue}` : ""}</span>
@@ -126,13 +156,15 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
                     {d.needs_top_mgmt && <span className="rounded-pill bg-bad-soft px-2 py-0.5 text-[10px] font-bold text-bad-fg">Top mgmt</span>}
                     <span className={clsx("rounded-pill px-2 py-0.5 text-[10px] font-bold capitalize", d.review?.verdict === "pass" ? "bg-good-soft text-good-fg" : d.review?.verdict === "block" ? "bg-bad-soft text-bad-fg" : "bg-warn-soft text-warn-fg")}>{d.status === "pending" ? d.review?.verdict ?? "pending" : d.status.replace("_", " ")}</span>
                   </span>
-                </button>
+                </motion.button>
               );
             })}
+            </AnimatePresence>
           </div>
 
+          <AnimatePresence mode="wait" initial={false} custom={lastDecision}>
           {current && (
-            <div className="card p-5 sm:p-6">
+            <motion.div key={current.id} custom={lastDecision} variants={cardVariants} initial="initial" animate="enter" exit="exit" className="card p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="eyebrow">{current.tone} {current.channel}</p>
@@ -163,19 +195,20 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
               {tab === "pending" ? (
                 <div className="mt-6 flex flex-wrap gap-2">
                   {current.needs_top_mgmt ? (
-                    <button type="button" disabled={!canTop || !!busy} onClick={() => decide(current, "approve", true)} className="btn btn-primary" title={canTop ? undefined : "Switch to CFO or Admin to approve final notices"}>
+                    <button type="button" disabled={!canTop || !!busy} onClick={(e) => decide(current, "approve", true, e.currentTarget)} className="btn btn-primary" title={canTop ? undefined : "Switch to CFO or Admin to approve final notices"}>
                       <CheckCircle2 className="size-4" aria-hidden="true" />{canTop ? "Approve as top management" : "Needs top management"}
                     </button>
                   ) : (
-                    <button type="button" disabled={!!busy} onClick={() => decide(current, "approve")} className="btn btn-primary"><CheckCircle2 className="size-4" aria-hidden="true" />Approve</button>
+                    <button type="button" disabled={!!busy} onClick={(e) => decide(current, "approve", false, e.currentTarget)} className="btn btn-primary"><CheckCircle2 className="size-4" aria-hidden="true" />Approve</button>
                   )}
                   <button type="button" disabled={!!busy} onClick={() => decide(current, "reject")} className="btn btn-danger"><X className="size-4" aria-hidden="true" />Reject</button>
                 </div>
               ) : (
                 <p className="mt-6 text-sm text-fg-muted">Status: <b className="capitalize text-fg">{current.status.replace("_", " ")}</b>{current.approved_by && ` by ${current.approved_by}`}</p>
               )}
-            </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       )}
 

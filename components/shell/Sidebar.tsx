@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { motion } from "motion/react";
 import { Logo } from "@/components/Logo";
 import { NAV } from "./nav";
 
@@ -22,12 +23,20 @@ export function Sidebar({ periodLabel, source }: { periodLabel: string; source: 
               href={href}
               aria-current={active ? "page" : undefined}
               className={clsx(
-                "flex min-h-[44px] items-center gap-3 rounded-pill px-4 text-[15px] font-semibold transition-colors",
-                active ? "bg-nav-active text-nav-active-fg" : "text-nav-fg hover:bg-surface-2 hover:text-fg",
+                "relative flex min-h-[44px] items-center gap-3 rounded-pill px-4 text-[15px] font-semibold transition-colors",
+                active ? "text-nav-active-fg" : "text-nav-fg hover:bg-surface-2 hover:text-fg",
               )}
             >
-              <Icon className="size-5" aria-hidden="true" />
-              {label}
+              {active && (
+                <motion.span
+                  layoutId="sidebar-active"
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-pill bg-nav-active"
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                />
+              )}
+              <Icon className="relative size-5" aria-hidden="true" />
+              <span className="relative">{label}</span>
             </Link>
           );
         })}

@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import clsx from "clsx";
 import { ArrowUp, RotateCcw, Sparkles, Square, Wrench } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { LogoMark } from "@/components/Logo";
 import { Markdownish } from "./Markdownish";
 
@@ -42,6 +43,24 @@ function MessageBody({ m }: { m: UIMessage }) {
         return null;
       })}
     </>
+  );
+}
+
+const BUBBLE_IN = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] as const } };
+
+/** Three dots that bob in turn while Duely is working on an answer. */
+function TypingDots() {
+  return (
+    <span className="flex h-4 items-center gap-1" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="size-1.5 rounded-full bg-fg-muted"
+          animate={{ y: [0, -3, 0], opacity: [0.35, 1, 0.35] }}
+          transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
+        />
+      ))}
+    </span>
   );
 }
 
@@ -94,23 +113,25 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
 
         <div className="flex flex-col gap-3">
           {messages.map((m) => (
-            <div key={m.id} className={clsx("anim-fade flex gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
+            <motion.div key={m.id} {...BUBBLE_IN} className={clsx("flex gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
               {m.role !== "user" && <LogoMark size={28} className="mt-1 shrink-0" />}
               <div className={clsx("max-w-[85%] rounded-[20px] px-4 py-2.5 text-[14.5px] leading-relaxed", m.role === "user" ? "rounded-br-md bg-primary text-primary-fg" : "rounded-bl-md border border-border bg-surface text-fg")}>
                 <MessageBody m={m} />
               </div>
-            </div>
+            </motion.div>
           ))}
-          {status === "submitted" && (
-            <div className="flex gap-2">
-              <LogoMark size={28} className="mt-1 shrink-0" />
-              <div className="typing rounded-[20px] rounded-bl-md border border-border bg-surface px-4 py-3 text-lg leading-none text-fg-muted" aria-label="Duely is thinking">
-                <span>•</span><span>•</span><span>•</span>
-              </div>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {status === "submitted" && (
+              <motion.div key="typing" className="flex gap-2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.1 } }}>
+                <LogoMark size={28} className="mt-1 shrink-0" />
+                <div role="status" className="rounded-[20px] rounded-bl-md border border-border bg-surface px-4 py-3.5" aria-label="Duely is thinking">
+                  <TypingDots />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {error && (
-            <div className="flex gap-2">
+            <motion.div {...BUBBLE_IN} className="flex gap-2">
               <LogoMark size={28} className="mt-1 shrink-0" />
               <div className="max-w-[85%] rounded-[20px] rounded-bl-md border border-warn bg-warn-soft px-4 py-3 text-sm text-fg">
                 <p className="font-bold">Duely can&apos;t answer right now.</p>
@@ -119,7 +140,7 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
                   <RotateCcw className="size-3.5" aria-hidden="true" /> Try again
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

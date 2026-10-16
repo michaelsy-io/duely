@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/shell/Sidebar";
 import { BottomTabs } from "@/components/shell/BottomTabs";
 import { Header, type Notice } from "@/components/shell/Header";
 import { ChatLauncher } from "@/components/chat/ChatLauncher";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const [{ period, result }, session, theme] = await Promise.all([getCurrentResult(), getSession(), getTheme()]);
@@ -26,23 +27,25 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const greeting = `${hour < 12 ? "Good morning" : "Good afternoon"} · ${PERIODS[period].label}`;
 
   return (
-    <div className="min-h-dvh bg-bg">
-      <Sidebar periodLabel={PERIODS[period].label} source={result.source} />
-      <div className="app-content lg:ml-64">
-        <Header
-          greeting={greeting}
-          name={session.role === "collector" ? `Hi, ${session.collector}` : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
-          role={session.roleLabel}
-          period={period}
-          periods={[{ id: "P1", short: PERIODS.P1.short }, { id: "P2", short: PERIODS.P2.short }]}
-          themes={themeList()}
-          theme={theme.name}
-          notices={notices}
-        />
-        <main id="main" className="app-main mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8 lg:px-8">{children}</main>
+    <MotionProvider>
+      <div className="min-h-dvh bg-bg">
+        <Sidebar periodLabel={PERIODS[period].label} source={result.source} />
+        <div className="app-content lg:ml-64">
+          <Header
+            greeting={greeting}
+            name={session.role === "collector" ? `Hi, ${session.collector}` : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
+            role={session.roleLabel}
+            period={period}
+            periods={[{ id: "P1", short: PERIODS.P1.short }, { id: "P2", short: PERIODS.P2.short }]}
+            themes={themeList()}
+            theme={theme.name}
+            notices={notices}
+          />
+          <main id="main" className="app-main mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8 lg:px-8">{children}</main>
+        </div>
+        <BottomTabs />
+        <ChatLauncher period={period} />
       </div>
-      <BottomTabs />
-      <ChatLauncher period={period} />
-    </div>
+    </MotionProvider>
   );
 }

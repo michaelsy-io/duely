@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { motion } from "motion/react";
 import { NAV } from "./nav";
 
 export function BottomTabs() {
@@ -18,8 +19,16 @@ export function BottomTabs() {
             aria-current={active ? "page" : undefined}
             className={clsx("flex min-h-[52px] min-w-[56px] flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[11px] font-semibold", active ? "text-primary" : "text-nav-fg")}
           >
-            <span className={clsx("grid h-7 w-12 place-items-center rounded-pill transition-colors", active && "bg-nav-active text-nav-active-fg")}>
-              <Icon className="size-5" aria-hidden="true" />
+            <span className={clsx("relative grid h-7 w-12 place-items-center rounded-pill transition-colors", active && "text-nav-active-fg")}>
+              {active && (
+                <motion.span
+                  layoutId="tabs-active"
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-pill bg-nav-active"
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                />
+              )}
+              <Icon className="relative size-5" aria-hidden="true" />
             </span>
             {label.replace(" view", "")}
           </Link>

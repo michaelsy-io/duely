@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import clsx from "clsx";
+import { AnimatedList } from "@/components/motion/AnimatedList";
+import { PressButton } from "@/components/motion/Press";
 
 export interface ClientItem {
   code: string; name: string; initials: string; bg: string; fg: string; segment: string; collector: string; area: string;
@@ -34,21 +36,21 @@ export function ClientSearch({ items }: { items: ClientItem[] }) {
       </div>
       <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         {SEGMENTS.map((s) => (
-          <button key={s} type="button" aria-pressed={seg === s} onClick={() => setSeg(s)} className={clsx("min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-bold", seg === s ? "bg-fg text-bg" : "border border-border bg-surface hover:bg-surface-2")}>
+          <PressButton key={s} type="button" aria-pressed={seg === s} onClick={() => setSeg(s)} className={clsx("min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-bold transition-colors", seg === s ? "bg-fg text-bg" : "border border-border bg-surface hover:bg-surface-2")}>
             {s === "Ambulatory surgical center" ? "Surgical centers" : s}
-          </button>
+          </PressButton>
         ))}
-        <button type="button" aria-pressed={onlyOverdue} onClick={() => setOnlyOverdue((v) => !v)} className={clsx("min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-bold", onlyOverdue ? "bg-accent text-accent-fg" : "border border-border bg-surface hover:bg-surface-2")}>
+        <PressButton type="button" aria-pressed={onlyOverdue} onClick={() => setOnlyOverdue((v) => !v)} className={clsx("min-h-[40px] shrink-0 rounded-pill px-4 text-sm font-bold transition-colors", onlyOverdue ? "bg-accent text-accent-fg" : "border border-border bg-surface hover:bg-surface-2")}>
           Overdue only
-        </button>
+        </PressButton>
       </div>
       <p className="mb-2 text-sm text-fg-muted" aria-live="polite">{shown.length} of {items.length} clients</p>
       {shown.length === 0 ? (
         <div className="card px-6 py-12 text-center text-fg-muted">No clients match “{q}”.</div>
       ) : (
-        <div className="list-group" role="list">
+        <AnimatedList className="list-group" label="Clients">
           {shown.map((c) => (
-            <Link key={c.code} href={`/clients/${c.code}`} role="listitem" className="pad-y flex items-center gap-3 px-4 transition-colors hover:bg-surface-2 sm:px-5">
+            <Link key={c.code} href={`/clients/${c.code}`} className="pad-y flex items-center gap-3 px-4 transition-colors hover:bg-surface-2 sm:px-5">
               <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-avatar text-[15px] font-bold" style={{ background: c.bg, color: c.fg }}>{c.initials}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-bold">{c.name}</span>
@@ -64,7 +66,7 @@ export function ClientSearch({ items }: { items: ClientItem[] }) {
               </span>
             </Link>
           ))}
-        </div>
+        </AnimatedList>
       )}
     </div>
   );

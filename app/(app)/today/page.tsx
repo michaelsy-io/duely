@@ -7,7 +7,10 @@ import { customers } from "@/lib/demo-tables";
 import { clientName, clientProfile } from "@/lib/clients";
 import { bucketTone, peso } from "@/lib/format";
 import { has, nextStep, rowsFor, scoreTone, STEP_TONE, sum, type NextStep } from "@/lib/view";
-import { ActionButton, Avatar, BalanceHero, Chip, ListGroup, ListRow, SectionTitle, StatPill } from "@/components/ui";
+import { ActionButton, Avatar, BalanceHero, Chip, ListRow, SectionTitle, StatPill } from "@/components/ui";
+import { AnimatedList } from "@/components/motion/AnimatedList";
+import { CountUp } from "@/components/motion/CountUp";
+import { PressLink } from "@/components/motion/Press";
 
 export const metadata: Metadata = { title: "Today" };
 
@@ -46,7 +49,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     <div className="flex flex-col gap-6 sm:gap-8">
       <BalanceHero
         label={<>Overdue in {who} · as of {PERIODS[period].label}</>}
-        amount={peso(totalOverdue)}
+        amount={<CountUp value={totalOverdue} text={peso(totalOverdue)} format="peso" />}
         sub={<>{rows.length} clients to follow up{top && <> · start with <Link className="font-bold text-primary underline-offset-2 hover:underline" href={`/clients/${top.client_code}`}>{clientName(top.client_code)}</Link></>}</>}
         progress={{ value: totalOverdue ? covered / totalOverdue : 0, label: <>{peso(covered)} already covered by checks on hand and promises · {totalOverdue ? Math.round((covered / totalOverdue) * 100) : 0}% of overdue</> }}
         actions={
@@ -60,9 +63,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatPill icon={<PhoneOff />} value={noContact} label="No contact in 14+ days" tone="warn" href="/today?f=call" />
-        <StatPill icon={<Wallet />} value={peso(pdcWeek)} label={`Checks to deposit this week (${myPdcs.length})`} tone="good" href="/checks" />
-        <StatPill icon={<AlertTriangle />} value={broken} label="Broken promises (30 days)" tone="bad" href="/today?f=escalate" />
+        <StatPill icon={<PhoneOff />} value={<CountUp value={noContact} text={String(noContact)} format="int" />} label="No contact in 14+ days" tone="warn" href="/today?f=call" />
+        <StatPill icon={<Wallet />} value={<CountUp value={pdcWeek} text={peso(pdcWeek)} format="peso" />} label={`Checks to deposit this week (${myPdcs.length})`} tone="good" href="/checks" />
+        <StatPill icon={<AlertTriangle />} value={<CountUp value={broken} text={String(broken)} format="int" />} label="Broken promises (30 days)" tone="bad" href="/today?f=escalate" />
       </div>
 
       <section aria-labelledby="list-title">
@@ -71,7 +74,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           {FILTERS.map((f) => {
             const active = f.slug === filter.slug;
             return (
-              <Link
+              <PressLink
                 key={f.slug}
                 href={f.slug === "all" ? "/today" : `/today?f=${f.slug}`}
                 aria-current={active ? "true" : undefined}
@@ -79,7 +82,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               >
                 {f.label}
                 <span className={`num rounded-pill px-1.5 text-xs ${active ? "bg-bg/20" : "bg-surface-3 text-fg-muted"}`}>{counts[f.slug]}</span>
-              </Link>
+              </PressLink>
             );
           })}
         </nav>
@@ -90,7 +93,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             <p className="mt-1 text-sm text-fg-muted">No clients match this filter today.</p>
           </div>
         ) : (
-          <ListGroup label="Follow-up list">
+          <AnimatedList className="list-group" label="Follow-up list">
             {shown.map(({ r, step }) => (
               <ListRow
                 key={r.client_code}
@@ -118,7 +121,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
                 }
               />
             ))}
-          </ListGroup>
+          </AnimatedList>
         )}
         <p className="mt-3 text-xs text-fg-subtle">Score badge = priority points from the rules engine. Day chip = oldest invoice days overdue.</p>
       </section>

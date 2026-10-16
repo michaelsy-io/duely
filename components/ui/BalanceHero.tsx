@@ -14,7 +14,7 @@ export function BalanceHero({ label, amount, sub, progress, actions, className, 
       {progress && (
         <div className="mt-5 w-full max-w-md">
           <div className="h-2.5 w-full overflow-hidden rounded-pill bg-surface-3" role="progressbar" aria-valuenow={Math.round(progress.value * 100)} aria-valuemin={0} aria-valuemax={100}>
-            <div className="h-full rounded-pill bg-good" style={{ width: `${Math.max(2, Math.min(100, progress.value * 100))}%` }} />
+            <div className="grow-x h-full rounded-pill bg-good" style={{ width: `${Math.max(2, Math.min(100, progress.value * 100))}%` }} />
           </div>
           <p className="mt-2 text-xs font-semibold text-hero-muted">{progress.label}</p>
         </div>
