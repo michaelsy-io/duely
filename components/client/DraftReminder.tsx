@@ -85,7 +85,10 @@ export function DraftReminder({ code, period }: { code: string; period: string }
               ))}
             </div>
           )}
-          <Link href="/approvals" className="btn btn-sm btn-secondary mt-4">Open approvals queue</Link>
+          <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-fg">
+            <Check className="size-4 text-good-fg" aria-hidden="true" />Sent to Approvals.
+            <Link href={draft.id ? `/approvals?draft=${draft.id}` : "/approvals"} className="text-primary underline-offset-2 hover:underline">View it</Link>
+          </p>
         </div>
       )}
     </div>

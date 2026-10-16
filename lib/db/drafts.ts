@@ -54,6 +54,23 @@ export async function listDrafts(period?: string): Promise<Draft[]> {
   return mem.filter((d) => !period || d.period === period);
 }
 
+/**
+ * Number of drafts for a period in Supabase (any status), or null when the database is not
+ * reachable. Used to decide whether to seed demo drafts: only ever when this is exactly 0.
+ */
+export async function countDraftsInDb(period: string): Promise<number | null> {
+  const db = getDb();
+  if (!db) return null;
+  try {
+    const { count, error } = await db.from("drafts").select("id", { count: "exact", head: true }).eq("period", period);
+    if (error) throw error;
+    return count ?? 0;
+  } catch (e) {
+    warn("countDraftsInDb", e);
+    return null;
+  }
+}
+
 export async function getDraft(id: string): Promise<Draft | null> {
   const local = mem.find((d) => d.id === id);
   const db = getDb();
