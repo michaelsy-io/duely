@@ -7,7 +7,7 @@ export const wise: Theme = {
   description: "Light, airy and friendly, in Duely regal purple.",
   layout: { navStyle: "sidebar", heroStyle: "centered-balance", listStyle: "rows", avatarShape: "circle", colorScheme: "light" },
   tokens: {
-    bg: "#F7F5FC",
+    bg: "#F2EFFA", // the landing page "paper"
     surface: "#FFFFFF",
     "surface-2": "#F4F1FD",
     "surface-3": "#ECE8FB",
@@ -29,7 +29,7 @@ export const wise: Theme = {
     "radius-card": "20px",
     "radius-pill": "999px",
     "radius-avatar": "999px",
-    "shadow-card": "none",
+    "shadow-card": "0 1px 2px rgba(28,18,64,.03), 0 12px 30px -22px rgba(36,27,58,.42)", // the landing nav bar's soft lift
     "shadow-float": "0 14px 34px -12px rgba(28,18,64,.55)",
     scrim: "rgba(20,12,46,.35)",
     "font-sans": "var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif",

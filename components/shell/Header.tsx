@@ -5,7 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette, UserRound } from "lucide-react";
 import { setPeriod, setTheme, signOut, switchRole } from "@/app/actions";
-import { LogoMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import type { Role } from "@/lib/session";
 import { ROLE_BLURB } from "./nav";
 
@@ -64,8 +64,8 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
   return (
     <header className={clsx("sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md transition-opacity", pending && "opacity-70")}>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        {/* Phones: the logo only (the greeting does not fit next to the controls). */}
-        <Link href={home} className="shrink-0 lg:hidden" aria-label="Duely home"><LogoMark size={34} /></Link>
+        {/* Phones: the logo only (the greeting does not fit next to the controls); the wordmark shows when there is room. */}
+        <Link href={home} className="shrink-0 lg:hidden" aria-label="Duely home"><Logo wordmarkClassName="max-[439px]:sr-only" /></Link>
         <div className="min-w-0 flex-1 max-sm:sr-only">
           <p className="truncate text-xs font-semibold text-fg-muted sm:text-sm">{greeting}</p>
           <p className="truncate font-display text-lg font-extrabold leading-tight tracking-tight sm:text-xl">{name}</p>

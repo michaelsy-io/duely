@@ -2,9 +2,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { NotebookPen, Phone } from "lucide-react";
 import { CountUp } from "@/components/motion/CountUp";
+import { PesoCoins } from "@/components/brand/PesoCoins";
 import { peso } from "@/lib/format";
 
-/** Compact summary above Today's list: overdue total, how much is already covered, and who to call first. */
+/** Compact summary above Today's list: overdue total, how much is already covered, and who to call first.
+ *  Dressed like the landing hero: a soft purple glow (.brand-hero) and two floating peso coins. */
 export function TodayStrip({ who, totalOverdue, covered, first, callHref, logHref }: {
   who: string;
   totalOverdue: number;
@@ -17,7 +19,8 @@ export function TodayStrip({ who, totalOverdue, covered, first, callHref, logHre
   const share = totalOverdue ? covered / totalOverdue : 0;
   const pctText = `${Math.round(share * 100)}%`;
   return (
-    <section aria-label="Summary" className="card grid gap-4 px-5 py-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-8 sm:px-6 sm:py-5 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+    <section aria-label="Summary" className="card brand-hero grid gap-4 px-5 py-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-8 sm:px-6 sm:py-5 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+      <PesoCoins />
       <div>
         <p className="text-xs font-semibold text-fg-muted">Overdue in {who}</p>
         <p className="num mt-0.5 font-display text-[32px] font-extrabold leading-none tracking-[-0.04em] sm:text-[40px]">

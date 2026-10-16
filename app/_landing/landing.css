@@ -29,8 +29,7 @@
 .ld h1,.ld h2,.ld h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.03em;line-height:1}
 .ld .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding-block:14px}
 .ld .nav .bar{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.72);backdrop-filter:blur(14px);border-radius:999px;padding:8px 8px 8px 18px;box-shadow:0 8px 30px -18px rgba(36,27,58,.5)}
-.ld .logo{display:flex;align-items:center;gap:10px;font:800 21px var(--display);letter-spacing:-.04em;text-decoration:none}
-.ld .logo i{width:30px;height:30px;border-radius:10px;background:var(--lav);display:grid;place-items:center}
+.ld .logo{display:flex;align-items:center;text-decoration:none} /* lockup itself: components/Logo.tsx + .duely-logo in globals.css */
 .ld .nav nav{display:flex;gap:4px;margin-left:auto}
 .ld .nav nav a{font-weight:600;font-size:14px;text-decoration:none;padding:10px 14px;border-radius:999px}
 .ld .nav nav a:hover{background:var(--lav-2)}

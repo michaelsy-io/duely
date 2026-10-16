@@ -44,7 +44,7 @@ Shipped themes:
 | `hero-bg`, `hero-fg`, `hero-muted` | the big balance card |
 | `avatar-N-bg`, `avatar-N-fg` (N = 0..7) | initials avatars, picked by client code |
 | `radius-card`, `radius-pill`, `radius-avatar` | corner radii |
-| `shadow-card` | card shadow (`none` for flat Wise look) |
+| `shadow-card` | card shadow (`none` for a flat look; wise uses the landing page's soft lift) |
 | `shadow-float` | floating chat button, menus, sheets |
 | `scrim` | dimmed overlay behind dialogs |
 | `font-sans`, `font-display` | UI font and heading/number font (`--font-jakarta`, `--font-bricolage` are loaded in `app/layout.tsx`; add more fonts there with `next/font`) |
