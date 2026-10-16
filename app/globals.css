@@ -7,9 +7,9 @@
 */
 :root {
   --bg: #f2effa; --surface: #fff; --surface-2: #f4f1fd; --surface-3: #ece8fb; --border: #ece8f5;
-  --fg: #1c1240; --fg-muted: #5d5578; --fg-subtle: #686283;
+  --fg: #10231c; --fg-muted: #5d5578; --fg-subtle: #686283;
   --primary: #5b3fd0; --primary-hover: #4a31b8; --primary-fg: #fff; --primary-soft: #ece8fb; --primary-soft-fg: #3d2799;
-  --accent: #c9bdff; --accent-fg: #1c1240;
+  --accent: #c9bdff; --accent-fg: #10231c;
   --good: #2fbf8a; --good-soft: #e2f6ee; --good-fg: #137551;
   --warn: #f5a524; --warn-soft: #fdf1dc; --warn-fg: #8f5400;
   --bad: #e5484d; --bad-soft: #fde7e8; --bad-fg: #b4232a;
@@ -19,7 +19,13 @@
   --font-display: var(--font-bricolage), var(--font-jakarta), system-ui, sans-serif;
   --density: 1; --focus: #5b3fd0;
   --nav-bg: #fff; --nav-fg: #5d5578; --nav-active-bg: #ece8fb; --nav-active-fg: #3d2799;
-  --hero-bg: #fff; --hero-fg: #1c1240; --hero-muted: #5d5578;
+  --hero-bg: #fff; --hero-fg: #10231c; --hero-muted: #5d5578;
+  /* Adopted from the duely design system (16 Oct 2026) where ours was undefined. Purple stays the brand hue. */
+  --ink: #10231c; --ink-800: #1d3a2f; --paper: #fffdf6; --paper-2: #f4f1e8;
+  --sky: #3b82c4; --sky-soft: #e3eefd; --sky-fg: #2457b8; /* status: sent */
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+  --radius-check: 5px; --radius-tip: 6px;
+  --ease: cubic-bezier(.2,.7,.2,1);
 }
 
 /* Headings use the landing page's tracking (-0.03em) wherever `tracking-tight` sits on a display heading. */
@@ -63,6 +69,13 @@
   --color-hero: var(--hero-bg);
   --color-hero-fg: var(--hero-fg);
   --color-hero-muted: var(--hero-muted);
+  --color-ink: var(--ink);
+  --color-ink-800: var(--ink-800);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-fg: var(--sky-fg);
 }
 
 @utility rounded-card { border-radius: var(--radius-card); }
@@ -71,6 +84,7 @@
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility shadow-float { box-shadow: var(--shadow-float); }
 @utility font-display { font-family: var(--font-display); }
+@utility font-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -106,6 +120,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 .num, .tabular { font-variant-numeric: tabular-nums; }
+/* Mono for IDs, document numbers and dates (design system: every number, ID and date in mono). Big hero amounts stay in the display face. */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 12px; }
 /* The chat box shows focus on its whole pill (focus-within), not on the inner textarea. */
 .chat-input:focus-visible { outline: none; }
@@ -129,7 +145,14 @@ body {
   .btn-danger { background: var(--bad-soft); color: var(--bad-fg); }
   .btn-sm { min-height: 36px; padding: 0 .85rem; font-size: .8rem; }
   .h-display { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; text-wrap: balance; }
-  .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-subtle); }
+  .eyebrow { font-family: var(--font-mono); font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-subtle); }
+  /* Receipt card (design system signature motif): paper, soft shadow, torn zigzag bottom. Only for letters and receipts, once per view. */
+  .receipt { position: relative; background: var(--paper); color: var(--ink); border-radius: 6px 6px 0 0; box-shadow: 0 10px 24px -16px rgba(16,35,28,.45); padding-bottom: 1.75rem;
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+            mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%; }
+  .receipt-rule { border-top: 1px dashed color-mix(in oklab, var(--ink) 25%, transparent); }
+  .btn-ink { background: var(--ink); color: var(--paper); }
+  .btn-ink:hover { background: var(--ink-800); }
   .input { width: 100%; min-height: 44px; padding: 0 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--surface); color: var(--fg); }
   .input::placeholder { color: var(--fg-subtle); }
   .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }

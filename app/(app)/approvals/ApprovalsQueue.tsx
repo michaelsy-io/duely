@@ -274,7 +274,9 @@ export function ApprovalsQueue({ initialDrafts, initialSelected, seeded, period,
 
               {current.subject && <p className="mt-4 text-sm"><span className="font-bold">Subject:</span> {current.subject}</p>}
               <label htmlFor="draft-body" className="mt-3 block text-sm font-bold">Message</label>
-              <textarea id="draft-body" value={edit} onChange={(e) => setEdit(e.target.value)} readOnly={!canApprove} rows={9} className="mt-1.5 w-full rounded-2xl border border-border bg-bg p-4 text-[14.5px] leading-relaxed text-fg focus:border-primary focus:outline-none" />
+              <div className="receipt mt-1.5 p-3">
+                <textarea id="draft-body" value={edit} onChange={(e) => setEdit(e.target.value)} readOnly={!canApprove} rows={9} className="block w-full resize-y rounded-md bg-transparent p-2 text-[14.5px] leading-relaxed text-ink focus:outline-2 focus:outline-primary" />
+              </div>
               {edit !== (current.body ?? "") && <p className="mt-1 text-xs font-semibold text-warn-fg">Edited. Changes are kept on this screen for the demo; the reviewer re-checks numbers on approve.</p>}
 
               <div className="mt-4">

@@ -48,7 +48,7 @@ export default async function ChecksPage() {
           <SectionTitle title="Deposit now" sub="Check date has passed." />
           <ListGroup>
             {pastDue.map((p) => (
-              <ListRow key={p.check_no + p.check_date} href={`/clients/${p.client_code}`} leading={<Avatar code={p.client_code} />} title={clientName(p.client_code)} sub={`${p.check_no} · dated ${fmtDate(p.check_date)}`} trailing={peso(p.amount)} trailingSub={<Chip tone="bad">Deposit now</Chip>} />
+              <ListRow key={p.check_no + p.check_date} href={`/clients/${p.client_code}`} leading={<Avatar code={p.client_code} />} title={clientName(p.client_code)} sub={<><span className="mono">{p.check_no}</span> · dated {fmtDate(p.check_date)}</>} trailing={peso(p.amount)} trailingSub={<Chip tone="bad">Deposit now</Chip>} />
             ))}
           </ListGroup>
         </section>
@@ -74,7 +74,7 @@ export default async function ChecksPage() {
                         <Avatar code={p.client_code} size={36} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-bold">{clientName(p.client_code)}</span>
-                          <span className="block text-xs text-fg-muted">{fmtDate(p.check_date, "EEE d MMM")} · {p.check_no}</span>
+                          <span className="block text-xs text-fg-muted">{fmtDate(p.check_date, "EEE d MMM")} · <span className="mono">{p.check_no}</span></span>
                           {p.flags.length > 0 && <span className="block truncate text-[11px] font-bold text-bad-fg">{p.flags.join(" · ")}</span>}
                         </span>
                         <span className="num text-sm font-extrabold">{peso(p.amount)}</span>

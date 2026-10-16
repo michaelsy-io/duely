@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Check, PenLine, X } from "lucide-react";
 import clsx from "clsx";
+import { ReceiptMark } from "@/components/brand/ReceiptMark";
 
 interface DraftOut {
   id?: string;
@@ -66,15 +67,16 @@ export function DraftReminder({ code, period }: { code: string; period: string }
       )}
 
       {state === "done" && draft && (
-        <div className="anim-fade mt-4 rounded-2xl border border-border bg-bg p-4">
+        <div className="receipt anim-fade mt-4 p-4 sm:p-5">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             {draft.tone && <span className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-bold capitalize text-primary-soft-fg">{draft.tone}</span>}
             {draft.channel && <span className="rounded-pill bg-surface-3 px-2.5 py-0.5 text-xs font-bold uppercase text-fg-muted">{draft.channel}</span>}
             {draft.needs_top_mgmt && <span className="rounded-pill bg-bad-soft px-2.5 py-0.5 text-xs font-bold text-bad-fg">Needs top management</span>}
             <span className="rounded-pill bg-warn-soft px-2.5 py-0.5 text-xs font-bold text-warn-fg">Waiting for approval</span>
           </div>
-          {draft.subject && <p className="font-bold">{draft.subject}</p>}
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-fg">{draft.body}</p>
+          <div className="receipt-rule mb-3" />
+          {draft.subject && <p className="flex items-center gap-2 font-bold"><ReceiptMark size={20} />{draft.subject}</p>}
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{draft.body}</p>
           {checks && (
             <div className="mt-3 flex flex-wrap gap-2">
               {Object.entries(checks).map(([k, ok]) => (
