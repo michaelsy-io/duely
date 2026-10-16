@@ -8,7 +8,7 @@ import { AnimatePresence, motion, type Variants } from "motion/react";
 import { burstConfettiFrom } from "@/components/motion/confetti";
 
 interface Review { verdict?: string; issues?: string[]; unknownNumbers?: string[]; checks?: Record<string, boolean>; critique?: string }
-interface Draft {
+export interface Draft {
   id: string; client_code: string; tone: string; channel: string | null; subject: string | null; body: string | null;
   review: Review | null; status: string; needs_top_mgmt: boolean; approved_by: string | null; created_at: string;
 }
@@ -30,12 +30,12 @@ const rowVariants: Variants = {
   exit: (d: Decision) => leave(d, 24),
 };
 
-export function ApprovalsQueue({ period, role, by, names, escalations }: {
-  period: string; role: string; by: string;
+export function ApprovalsQueue({ initialDrafts, period, role, by, names, escalations }: {
+  initialDrafts: Draft[] | null; period: string; role: string; by: string;
   names: Record<string, { name: string; overdue: string; days: number }>;
   escalations: { code: string; name: string; action: string; trigger: string; approver: string }[];
 }) {
-  const [drafts, setDrafts] = useState<Draft[] | null>(null);
+  const [drafts, setDrafts] = useState<Draft[] | null>(initialDrafts);
   const [unavailable, setUnavailable] = useState(false);
   const [sel, setSel] = useState<string | null>(null);
   const [edit, setEdit] = useState("");
@@ -57,7 +57,8 @@ export function ApprovalsQueue({ period, role, by, names, escalations }: {
     }
   }, [period]);
 
-  useEffect(() => { void load(); }, [load]);
+  // Only fetch on mount if the server could not supply the drafts.
+  useEffect(() => { if (initialDrafts === null) void load(); }, [load, initialDrafts]);
 
   const pending = useMemo(() => (drafts ?? []).filter((d) => d.status === "pending" || d.status === "needs_edit"), [drafts]);
   const done = useMemo(() => (drafts ?? []).filter((d) => !(d.status === "pending" || d.status === "needs_edit")), [drafts]);
