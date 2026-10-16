@@ -15,6 +15,9 @@ export const ROLES: Record<Role, { label: string; person: string; home: string }
   admin: { label: "Admin", person: "Admin", home: "/today" },
 };
 
+/** Month the app opens on when no `duely_period` cookie is set: the latest books (30 Sep 2026), matching the landing page. */
+export const DEFAULT_PERIOD: Period = "P2";
+
 export function isPeriod(v: unknown): v is Period {
   return v === "P1" || v === "P2";
 }
@@ -108,9 +111,9 @@ export function parsePeriodValue(v: unknown): Period | MonthKey | null {
   return null;
 }
 
-/** The month the user is looking at, from the `duely_period` cookie (default P1). */
+/** The month the user is looking at, from the `duely_period` cookie (default DEFAULT_PERIOD, 30 Sep 2026). */
 export async function getMonthSelection(): Promise<MonthSelection> {
-  const v = parsePeriodValue((await cookies()).get("duely_period")?.value) ?? "P1";
+  const v = parsePeriodValue((await cookies()).get("duely_period")?.value) ?? DEFAULT_PERIOD;
   return selectionFor(isPeriod(v) ? PERIODS[v].month : v);
 }
 

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { getMonthSelection, PERIODS } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { getMonthSelection, getSession, PERIODS } from "@/lib/session";
 import { ImportWizard } from "./ImportWizard";
 
 export const metadata: Metadata = { title: "Import" };
 
 export default async function ImportPage() {
-  const sel = await getMonthSelection();
+  const [sel, session] = await Promise.all([getMonthSelection(), getSession()]);
+  // Collecting agents do not import files; send them to their list.
+  if (session.role === "collector") redirect("/today");
   return (
     <div className="flex flex-col gap-6">
       <div>

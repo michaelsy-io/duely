@@ -7,10 +7,10 @@
 */
 :root {
   --bg: #f7f5fc; --surface: #fff; --surface-2: #f4f1fd; --surface-3: #ece8fb; --border: #ece8f5;
-  --fg: #1c1240; --fg-muted: #5d5578; --fg-subtle: #8a84a3;
+  --fg: #1c1240; --fg-muted: #5d5578; --fg-subtle: #686283;
   --primary: #5b3fd0; --primary-hover: #4a31b8; --primary-fg: #fff; --primary-soft: #ece8fb; --primary-soft-fg: #3d2799;
   --accent: #c9bdff; --accent-fg: #1c1240;
-  --good: #2fbf8a; --good-soft: #e2f6ee; --good-fg: #17805a;
+  --good: #2fbf8a; --good-soft: #e2f6ee; --good-fg: #137551;
   --warn: #f5a524; --warn-soft: #fdf1dc; --warn-fg: #8f5400;
   --bad: #e5484d; --bad-soft: #fde7e8; --bad-fg: #b4232a;
   --orange: #ee7a3a; --orange-soft: #fde6d6; --orange-fg: #a4400f;

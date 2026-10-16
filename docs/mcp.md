@@ -2,7 +2,7 @@
 
 Duely exposes its collections data tools over MCP (Streamable HTTP, stateless):
 
-`https://<deployment>/api/mcp/mcp` — append `?period=P2` to default to the September run (default P1).
+`https://<deployment>/api/mcp/mcp` — append `?period=P1` to use the August run (default P2, 30 Sep 2026).
 
 Tools: `get_today_list`, `get_client`, `get_kpis`, `get_pdc_calendar`, `search_ledger`, `log_contact`, `draft_message`. Every tool also accepts an optional `period` (`P1` = 31 Aug 2026, `P2` = 30 Sep 2026). All numbers come from the rules engine; `draft_message` only queues a draft for supervisor approval — nothing is sent.
 

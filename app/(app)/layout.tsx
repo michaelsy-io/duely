@@ -1,5 +1,5 @@
 import { getCurrentResult } from "@/lib/data";
-import { getMonthSelection, getSession, monthLabel, monthList, periodForMonth, PERIODS } from "@/lib/session";
+import { getMonthSelection, getSession, monthLabel, monthList, periodForMonth, PERIODS, ROLES } from "@/lib/session";
 import { getTheme } from "@/lib/themes/server";
 import { themeList } from "@/lib/themes";
 import { clientName } from "@/lib/clients";
@@ -25,18 +25,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const drop = result.flags.find((f) => f.flag === "Inflow drop");
   if (live && drop) notices.push({ id: "inflow", title: `Inflow dip in ${drop.who}`, body: drop.rule, href: "/cfo", tone: "warn" });
 
-  const hour = 9; // demo clock: morning
-  const greeting = `${hour < 12 ? "Good morning" : "Good afternoon"} · ${live ? PERIODS[period].label : `${sel.short} · no data yet`}`;
+  // Demo clock: the day is the books' as-of date and the time is always 9:00, so the greeting never
+  // mixes in the real wall-clock time.
+  const DEMO_HOUR = 9;
+  const greeting = `${DEMO_HOUR < 12 ? "Good morning" : "Good afternoon"} · ${live ? PERIODS[period].label : `${sel.short} · no data yet`}`;
 
   return (
     <MotionProvider>
       <div className="min-h-dvh bg-bg">
-        <Sidebar periodLabel={live ? PERIODS[period].label : `${sel.label} (no data yet)`} source={result.source} />
+        <Sidebar periodLabel={live ? PERIODS[period].label : `${sel.label} (no data yet)`} source={result.source} role={session.role} />
         <div className="app-content lg:ml-64">
           <Header
             greeting={greeting}
             name={session.role === "collector" ? "Hi, Collecting Agent" : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
             role={session.roleLabel}
+            roleId={session.role}
+            home={ROLES[session.role].home}
             selected={sel.period ?? sel.month}
             periods={[{ id: "P2", short: PERIODS.P2.short }, { id: "P1", short: PERIODS.P1.short }]} // latest month first
             months={monthList().map((m) => {
@@ -49,7 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           />
           <main id="main" className="app-main mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-8 lg:px-8">{children}</main>
         </div>
-        <BottomTabs />
+        <BottomTabs role={session.role} />
         <ChatLauncher period={period} />
       </div>
     </MotionProvider>

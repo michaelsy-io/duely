@@ -34,12 +34,29 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAYS_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+/**
+ * Each kind has its own shape as well as its own colour, so status never relies on colour alone:
+ * bounced = diamond, missed promise = triangle, invoice due = square, check = dot,
+ * promise = ring, review = hollow square, month-end close = bar.
+ */
+const SHAPE: Record<EventKind, { className: string; style: (c: string) => CSSProperties }> = {
+  bounced: { className: "", style: (c) => ({ background: c, clipPath: "polygon(50% 0, 100% 50%, 50% 100%, 0 50%)" }) },
+  missed: { className: "", style: (c) => ({ background: c, clipPath: "polygon(50% 0, 100% 100%, 0 100%)" }) },
+  invoice: { className: "rounded-[2px]", style: (c) => ({ background: c }) },
+  check: { className: "rounded-full", style: (c) => ({ background: c }) },
+  promise: { className: "rounded-full", style: (c) => ({ boxShadow: `inset 0 0 0 2px ${c}` }) },
+  review: { className: "rounded-[2px]", style: () => ({ boxShadow: "inset 0 0 0 2px color-mix(in oklab, var(--accent) 70%, var(--fg))" }) },
+  close: { className: "", style: (c) => ({ background: c, clipPath: "polygon(0 35%, 100% 35%, 100% 65%, 0 65%)" }) },
+};
+
 export function Dot({ kind, className }: { kind: EventKind; className?: string }) {
+  const shape = SHAPE[kind];
   return (
     <span
       aria-hidden="true"
-      className={clsx("inline-block size-2 shrink-0 rounded-full", className)}
-      style={{ background: KIND_COLOR[kind], boxShadow: kind === "review" ? "inset 0 0 0 1px color-mix(in oklab, var(--fg) 30%, transparent)" : undefined }}
+      data-kind={kind}
+      className={clsx("inline-block size-2.5 shrink-0", shape.className, className)}
+      style={shape.style(KIND_COLOR[kind])}
     />
   );
 }
@@ -225,19 +242,24 @@ export function MonthCalendar({ cells, days, kinds, today, closeDate, focusDate,
                   >
                     <span className={clsx("num grid size-5 place-items-center rounded-full text-[11px] font-bold sm:size-7 sm:text-sm", isToday ? "bg-primary text-primary-fg" : "text-fg")}>{day}</span>
                     {evs.length >= BADGE_AT && (
-                      <span className="num absolute right-0.5 top-0.5 min-w-[16px] rounded-pill bg-fg px-1 text-center text-[10px] font-bold leading-4 text-bg sm:right-1.5 sm:top-1.5 sm:px-1.5 sm:text-[11px]" aria-hidden="true">{evs.length}</span>
+                      <span className="num absolute right-0.5 top-0.5 min-w-[18px] rounded-pill bg-fg px-1 text-center text-xs font-bold leading-[18px] text-bg sm:right-1.5 sm:top-1.5 sm:px-1.5" aria-hidden="true">{evs.length}</span>
                     )}
                     {evs.length > 0 && (
                       <span className="mt-auto flex flex-wrap items-center gap-0.5 pt-1 sm:gap-x-2 sm:gap-y-1" aria-hidden="true">
                         {counts.map((x) => (
                           <span key={x.kind} className="flex items-center gap-0.5">
-                            <Dot kind={x.kind} className="size-1.5 sm:size-2" />
+                            <Dot kind={x.kind} className="size-2 sm:size-2.5" />
                             <span className="num hidden text-[11px] font-bold text-fg-muted sm:inline">{x.n}</span>
                           </span>
                         ))}
                       </span>
                     )}
-                    {isClose && <span className="mt-0.5 hidden truncate text-[10px] font-bold uppercase tracking-wide text-primary sm:block" aria-hidden="true">Close</span>}
+                    {isClose && (
+                      <span className="mt-0.5 hidden truncate text-xs font-bold text-primary sm:block" aria-hidden="true">
+                        <span className="lg:hidden">Month end</span>
+                        <span className="hidden lg:inline">Month-end close</span>
+                      </span>
+                    )}
                   </button>
                 </span>
               );

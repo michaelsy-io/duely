@@ -6,6 +6,7 @@
 // (it has @modelcontextprotocol/sdk@1 + zod@3), so we mount the SDK's web-standard transport directly.
 import { handleMcp } from "@/lib/mcp/server";
 import { normalizePeriod } from "@/lib/ai/context";
+import { DEFAULT_PERIOD } from "@/lib/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export const maxDuration = 60;
 
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  const period = normalizePeriod(url.searchParams.get("period") ?? req.headers.get("x-duely-period")) ?? "P1";
+  const period = normalizePeriod(url.searchParams.get("period") ?? req.headers.get("x-duely-period")) ?? DEFAULT_PERIOD;
   return handleMcp(req, { period });
 }
 

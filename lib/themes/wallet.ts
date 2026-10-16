@@ -14,7 +14,7 @@ export const wallet: Theme = {
     border: "#36353F",
     fg: "#FFFFFF",
     "fg-muted": "#A9A7B8",
-    "fg-subtle": "#7F7D8F",
+    "fg-subtle": "#9D9BAD",
     primary: "#AB9FF2",
     "primary-hover": "#BDB3F6",
     "primary-fg": "#17131F",

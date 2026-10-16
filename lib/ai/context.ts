@@ -4,6 +4,7 @@ import { getDemoResult } from "@/lib/engine/demo";
 import { parseCsv, type RawRow } from "@/lib/engine/csv";
 import type { EngineResult, FollowUpRow } from "@/lib/engine/types";
 import { clientName, clientProfile } from "@/lib/clients";
+import { DEFAULT_PERIOD, parsePeriodValue, selectionFor, isPeriod } from "@/lib/session";
 
 export type Period = "P1" | "P2";
 export const PERIOD_COOKIE = "duely_period";
@@ -15,16 +16,22 @@ export function normalizePeriod(p: unknown): Period | null {
   return null;
 }
 
-/** Period from explicit value, else `duely_period` cookie, else P1. Safe outside a request scope. */
+/** Data period for a raw `duely_period` cookie value: "P1"/"P2", or a month key mapped to its nearest data period. */
+export function periodFromCookieValue(v: unknown): Period {
+  const parsed = parsePeriodValue(v);
+  if (!parsed) return DEFAULT_PERIOD;
+  return isPeriod(parsed) ? parsed : selectionFor(parsed).dataPeriod;
+}
+
+/** Period from explicit value, else the `duely_period` cookie (month keys map to their data period), else DEFAULT_PERIOD (P2). Safe outside a request scope. */
 export async function resolvePeriod(explicit?: unknown): Promise<Period> {
   const p = normalizePeriod(explicit);
   if (p) return p;
   try {
     const { cookies } = await import("next/headers");
-    const c = (await cookies()).get(PERIOD_COOKIE)?.value;
-    return normalizePeriod(c) ?? "P1";
+    return periodFromCookieValue((await cookies()).get(PERIOD_COOKIE)?.value);
   } catch {
-    return "P1";
+    return DEFAULT_PERIOD;
   }
 }
 

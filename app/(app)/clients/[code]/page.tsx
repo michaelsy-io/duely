@@ -67,25 +67,26 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
         amount={peso(row ? row.overdue : balance)}
         sub={row ? <>Oldest invoice <span className={`num rounded-pill px-2 py-0.5 text-xs font-bold ${bucketTone(row.oldestDays)}`}>{row.oldestDays} days</span> overdue · as of {PERIODS[period].label}</> : <>Nothing overdue as of {PERIODS[period].label}</>}
         actions={
-          <>
+          // Five even columns so the buttons never wrap into a lone last item on phones.
+          <div className="mx-auto grid w-full max-w-md grid-cols-5 gap-1 sm:gap-4">
             <ActionButton icon={<Phone />} label="Call" variant="primary" href={`tel:${tel}`} external />
             <ActionButton icon={<MessageSquare />} label="SMS" href={`sms:${tel}`} external />
             <ActionButton icon={<Mail />} label="Email" href={`mailto:${profile.email}`} external />
             <ActionButton icon={<FileText />} label="Statement" href="#invoices" external />
             <LogContact code={code} name={profile.name} period={period} by={session.roleLabel} variant="action" />
-          </>
+          </div>
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-        <div className="flex flex-col gap-6">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[1.25fr_1fr]">
+        <div className="flex min-w-0 flex-col gap-6">
           {row && (
             <Card>
               <SectionTitle title={`Why #${row.rank} today`} sub="Points from the rules engine. Higher means call sooner." />
               <ul className="flex flex-col gap-2">
                 {row.factors.map((f, i) => (
                   <li key={i} className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-4 py-3">
-                    <span className="text-sm font-semibold">{f.label}</span>
+                    <span className="min-w-0 break-words text-sm font-semibold">{f.label}</span>
                     <span className={`num shrink-0 rounded-pill px-2.5 py-0.5 text-sm font-extrabold ${f.points < 0 ? "bg-good-soft text-good-fg" : "bg-primary-soft text-primary-soft-fg"}`}>{f.points > 0 ? "+" : ""}{f.points}</span>
                   </li>
                 ))}
@@ -117,7 +118,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
           </section>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           <Card>
             <SectionTitle title="Balance vs limit" />
             <p className="num text-2xl font-extrabold">{peso(balance)} <span className="text-base font-semibold text-fg-muted">of {peso(limit)}</span></p>
@@ -127,8 +128,8 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
             <p className={`mt-2 text-sm font-semibold ${usage > 1 ? "text-bad-fg" : "text-fg-muted"}`}>{usage > 1 ? `Over limit by ${peso(balance - limit)}` : `${Math.round(usage * 100)}% of credit limit used`}</p>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-2xl bg-surface-2 p-3"><dt className="text-fg-muted">Terms</dt><dd className="font-bold">{c?.payment_terms_days ?? "–"} days</dd></div>
-              <div className="rounded-2xl bg-surface-2 p-3"><dt className="text-fg-muted">Usually pays by</dt><dd className="font-bold">{c?.usual_payment_method ?? "–"}</dd></div>
-              <div className="col-span-2 rounded-2xl bg-surface-2 p-3"><dt className="text-fg-muted">Contact</dt><dd className="font-bold">{profile.contact_person}, {profile.contact_role}</dd><dd className="text-fg-muted">{profile.phone} · {profile.email}</dd></div>
+              <div className="rounded-2xl bg-surface-2 p-3"><dt className="text-fg-muted">Usually pays by</dt><dd className="font-bold">{c?.usual_payment_method ?? "–"}</dd>{/PDC/.test(c?.usual_payment_method ?? "") && <dd className="text-xs text-fg-muted">PDC: post-dated check, dated for a future day</dd>}</div>
+              <div className="col-span-2 rounded-2xl bg-surface-2 p-3"><dt className="text-fg-muted">Contact</dt><dd className="font-bold">{profile.contact_person}, {profile.contact_role}</dd><dd className="break-words text-fg-muted">{profile.phone} · {profile.email}</dd></div>
             </dl>
           </Card>
 
@@ -149,6 +150,12 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
                   <span><b className="block">Bounced check not replaced</b><span className="num">{peso(b.amount)}</span> returned {fmtDate(b.date_returned)} ({b.daysAgo} days ago)</span>
                 </li>
               ))}
+              {pdcs.length === 0 && (
+                <li className="flex gap-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface-3 text-fg-muted"><Banknote className="size-5" aria-hidden="true" /></span>
+                  <span><b className="block">Checks on hand</b><span className="text-fg-muted">No post-dated checks (PDC: a check dated for a future day) on hand</span></span>
+                </li>
+              )}
               {hold.map((h, i) => (
                 <li key={`h${i}`} className="flex gap-3">
                   <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface-3 text-fg-muted"><ShieldAlert className="size-5" aria-hidden="true" /></span>
@@ -158,9 +165,9 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
             </ul>
           </Card>
 
+          {pdcs.length > 0 && (
           <Card>
-            <SectionTitle title="Checks on hand" sub={pdcs.length ? `${pdcs.length} checks · ${peso(sum(pdcs, (p) => p.amount))}` : undefined} />
-            {pdcs.length === 0 ? <p className="text-sm text-fg-muted">No post-dated checks on hand.</p> : (
+            <SectionTitle title="Checks on hand" sub={`${pdcs.length} post-dated checks (PDC, dated for a future day) · ${peso(sum(pdcs, (p) => p.amount))}`} />
               <ul className="flex flex-col gap-2">
                 {pdcs.map((p) => (
                   <li key={p.check_no + p.check_date} className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm">
@@ -169,8 +176,8 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
                   </li>
                 ))}
               </ul>
-            )}
           </Card>
+          )}
 
           <Card id="history">
             <SectionTitle title="Contact history" sub={acts.length ? `${acts.length} entries` : undefined} />

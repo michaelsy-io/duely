@@ -146,9 +146,9 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
       </div>
 
       {messages.length > 0 && !busy && (
-        <div className="flex gap-2 overflow-x-auto px-4 pb-2 sm:px-5">
+        <div className="flex flex-wrap gap-2 px-4 pb-2 sm:px-5">
           {SUGGESTIONS.map((s) => (
-            <button key={s} type="button" onClick={() => send(s)} className="shrink-0 rounded-pill bg-surface-3 px-3 py-1.5 text-xs font-semibold text-primary-soft-fg hover:brightness-95">
+            <button key={s} type="button" onClick={() => send(s)} className="min-h-[36px] max-w-full rounded-pill bg-surface-3 px-3 py-1.5 text-left text-xs font-semibold text-primary-soft-fg hover:brightness-95">
               {s}
             </button>
           ))}

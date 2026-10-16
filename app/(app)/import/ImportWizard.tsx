@@ -152,7 +152,7 @@ export function ImportWizard({ periodLabel }: { periodLabel: string }) {
         <p className="mt-1 text-sm text-fg-muted">CSV or Excel, several at once. Files stay in your browser for this preview.</p>
         <button type="button" onClick={() => input.current?.click()} className="btn btn-primary mt-5">Choose files</button>
         <input ref={input} type="file" accept=".csv,.xlsx,.xls" multiple className="sr-only" aria-label="Choose files" onChange={(e) => e.target.files && void add(e.target.files)} />
-        <p className="mt-3 text-xs text-fg-subtle">Tip: try the files in data/demo/P1_2026-08-31.</p>
+        <p className="mt-3 text-xs text-fg-subtle">Tip: use the month-end files your finance team exports (aging, ledger, checks and collections).</p>
       </div>
 
       {files.length > 0 && (

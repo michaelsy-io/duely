@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette, Upload, UserRound } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Bell, CalendarDays, Check, ChevronDown, LogOut, MessageCircle, Palette, UserRound } from "lucide-react";
 import { setPeriod, setTheme, signOut, switchRole } from "@/app/actions";
 import { LogoMark } from "@/components/Logo";
+import type { Role } from "@/lib/session";
+import { ROLE_BLURB } from "./nav";
 
 export interface Notice { id: string; title: string; body: string; href: string; tone: "bad" | "warn" | "good" | "primary" }
 
@@ -13,6 +16,9 @@ interface Props {
   greeting: string;
   name: string;
   role: string;
+  roleId: Role;
+  /** Where the logo links: the role's first page. */
+  home: string;
   /** "P1" / "P2", or a month key ("2026-10") for a month with no imported data. */
   selected: string;
   periods: { id: "P1" | "P2"; short: string }[];
@@ -23,7 +29,7 @@ interface Props {
   notices: Notice[];
 }
 
-const ROLE_OPTIONS = [
+const ROLE_OPTIONS: { id: Role; label: string }[] = [
   { id: "collector", label: "Collecting Agent" },
   { id: "supervisor", label: "Supervisor" },
   { id: "cfo", label: "CFO" },
@@ -43,7 +49,7 @@ function useOutside<T extends HTMLElement>(open: boolean, close: () => void) {
   return ref;
 }
 
-export function Header({ greeting, name, role, selected, periods, months, themes, theme, notices }: Props) {
+export function Header({ greeting, name, role, roleId, home, selected, periods, months, themes, theme, notices }: Props) {
   const [pending, start] = useTransition();
   const [menu, setMenu] = useState(false);
   const [bell, setBell] = useState(false);
@@ -52,12 +58,14 @@ export function Header({ greeting, name, role, selected, periods, months, themes
   const otherMonth = months.find((m) => m.value === selected && !periods.some((p) => p.id === selected));
   const menuRef = useOutside<HTMLDivElement>(menu, () => setMenu(false));
   const bellRef = useOutside<HTMLDivElement>(bell, () => setBell(false));
+  const path = usePathname();
 
   return (
     <header className={clsx("sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md transition-opacity", pending && "opacity-70")}>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <Link href="/today" className="hidden sm:block lg:hidden" aria-label="Duely home"><LogoMark size={34} /></Link>
-        <div className="min-w-0 flex-1">
+        {/* Phones: the logo only (the greeting does not fit next to the controls). */}
+        <Link href={home} className="shrink-0 lg:hidden" aria-label="Duely home"><LogoMark size={34} /></Link>
+        <div className="min-w-0 flex-1 max-sm:sr-only">
           <p className="truncate text-xs font-semibold text-fg-muted sm:text-sm">{greeting}</p>
           <p className="truncate font-display text-lg font-extrabold leading-tight tracking-tight sm:text-xl">{name}</p>
         </div>
@@ -115,10 +123,16 @@ export function Header({ greeting, name, role, selected, periods, months, themes
           )}
         </div>
 
+        {!path.startsWith("/ask") && (
+          <button type="button" data-action="ask" className="btn btn-secondary hidden lg:inline-flex">
+            <MessageCircle className="size-4" aria-hidden="true" /> Ask Duely
+          </button>
+        )}
+
         <div className="relative" ref={bellRef}>
           <button type="button" onClick={() => setBell((v) => !v)} aria-expanded={bell} aria-label={`Notifications (${notices.length})`} className="relative grid size-11 place-items-center rounded-full bg-surface hover:bg-surface-2 border border-border">
             <Bell className="size-5" aria-hidden="true" />
-            {notices.length > 0 && <span className="absolute right-1.5 top-1.5 grid min-w-[18px] place-items-center rounded-full bg-bad px-1 text-[10px] font-bold text-white">{notices.length}</span>}
+            {notices.length > 0 && <span className="absolute right-1.5 top-1.5 grid min-w-[18px] place-items-center rounded-full bg-[#c42b30] px-1 text-[11px] font-bold text-white">{notices.length}</span>}
           </button>
           {bell && (
             <div className="anim-fade absolute right-0 top-full mt-2 w-[min(92vw,360px)] rounded-card border border-border bg-surface p-2 shadow-float">
@@ -144,12 +158,15 @@ export function Header({ greeting, name, role, selected, periods, months, themes
             <ChevronDown className="hidden size-4 text-fg-muted sm:block" aria-hidden="true" />
           </button>
           {menu && (
-            <div role="menu" className="anim-fade absolute right-0 top-full mt-2 w-64 rounded-card border border-border bg-surface p-2 shadow-float">
+            <div role="menu" className="anim-fade absolute right-0 top-full mt-2 w-[min(92vw,300px)] rounded-card border border-border bg-surface p-2 shadow-float">
               <p className="px-3 pb-1 pt-2 eyebrow">View as</p>
               {ROLE_OPTIONS.map((r) => (
-                <button key={r.id} role="menuitemradio" aria-checked={role === r.label} type="button" onClick={() => start(async () => { await switchRole(r.id); setMenu(false); })} className="flex min-h-[44px] w-full items-center justify-between rounded-2xl px-3 text-left text-sm font-semibold hover:bg-surface-2">
-                  {r.label}
-                  {role === r.label && <Check className="size-4 text-primary" aria-hidden="true" />}
+                <button key={r.id} role="menuitemradio" aria-checked={roleId === r.id} type="button" onClick={() => start(async () => { await switchRole(r.id); setMenu(false); })} className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left hover:bg-surface-2">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{r.label}</span>
+                    <span className="block text-xs text-fg-muted">{ROLE_BLURB[r.id]}</span>
+                  </span>
+                  {roleId === r.id && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
                 </button>
               ))}
               <p className="mt-1 flex items-center gap-1.5 border-t border-border px-3 pb-1 pt-3 eyebrow"><Palette className="size-3.5" aria-hidden="true" />App style</p>
@@ -159,12 +176,6 @@ export function Header({ greeting, name, role, selected, periods, months, themes
                   {theme === t.name && <Check className="size-4 text-primary" aria-hidden="true" />}
                 </button>
               ))}
-              <Link href="/calendar" onClick={() => setMenu(false)} className="mt-1 flex min-h-[44px] items-center gap-2 rounded-2xl border-t border-border px-3 text-sm font-semibold hover:bg-surface-2 lg:hidden">
-                <CalendarDays className="size-4" aria-hidden="true" /> Calendar
-              </Link>
-              <Link href="/import" onClick={() => setMenu(false)} className="flex min-h-[44px] items-center gap-2 rounded-2xl px-3 text-sm font-semibold hover:bg-surface-2 lg:hidden">
-                <Upload className="size-4" aria-hidden="true" /> Import files
-              </Link>
               <form action={signOut} className="mt-1 border-t border-border pt-1">
                 <button type="submit" className="flex min-h-[44px] w-full items-center gap-2 rounded-2xl px-3 text-left text-sm font-semibold text-bad-fg hover:bg-bad-soft">
                   <LogOut className="size-4" aria-hidden="true" /> Sign out

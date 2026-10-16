@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Maximize2, MessageCircle, X } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChatPanel } from "./ChatPanel";
 
-/** Floating "Ask Duely" bubble that opens a slide-over chat. Hidden on /ask (full-page chat). */
+/**
+ * Slide-over "Ask Duely" chat. No floating button (it covered content): it opens from the header
+ * "Ask Duely" button on desktop, any [data-action="ask"] element, or a `duely:ask` event. On mobile,
+ * Ask is a bottom tab that opens the full-page chat at /ask. Not rendered on /ask itself.
+ */
 export function ChatLauncher({ period }: { period: string }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
@@ -33,25 +37,6 @@ export function ChatLauncher({ period }: { period: string }) {
 
   return (
     <>
-      <AnimatePresence initial={false}>
-        {!open && (
-          <motion.button
-            key="launcher"
-            type="button"
-            onClick={() => setOpen(true)}
-            initial={{ opacity: 0, scale: 0.9, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.12 } }}
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 500, damping: 34 }}
-            className="fixed bottom-[92px] right-4 z-40 flex min-h-[56px] items-center gap-2 rounded-pill bg-primary pl-4 pr-5 font-bold text-primary-fg shadow-float lg:bottom-6 lg:right-6"
-          >
-            <MessageCircle className="size-5" aria-hidden="true" />
-            Ask Duely
-          </motion.button>
-        )}
-      </AnimatePresence>
       <AnimatePresence>
       {open && (
         <div key="chat" className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Ask Duely">
