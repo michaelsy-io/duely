@@ -21,7 +21,11 @@ export interface ToolCtx {
   period: Period;
 }
 
-const periodField = z.enum(["P1", "P2"]).optional().describe("Demo period: P1 = 31 Aug 2026, P2 = 30 Sep 2026. Defaults to the selected period.");
+const periodField = z
+  .string()
+  .regex(/^(P1|P2|\d{4}-(0[1-9]|1[0-2]))$/)
+  .optional()
+  .describe("Books to read: P1 = 31 Aug 2026, P2 = 30 Sep 2026, or an imported month as YYYY-MM (e.g. 2026-10). Defaults to the selected month.");
 const pick = (ctx: ToolCtx, p?: string) => normalizePeriod(p) ?? ctx.period;
 const chip = (label: string, asOf: string) => `${label} · ${shortDate(asOf)}`;
 
@@ -166,7 +170,8 @@ export const searchLedger = def({
   async execute({ query, k, period }, ctx) {
     const p = pick(ctx, period);
     try {
-      const hits = await searchKnowledge(query, k ?? 6, p);
+      // Imported months are not indexed for search: search the bundled ledger and policies instead.
+      const hits = await searchKnowledge(query, k ?? 6, p === "P1" || p === "P2" ? p : undefined);
       return {
         period: p,
         source: "Ledger search",

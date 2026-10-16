@@ -19,9 +19,9 @@ interface Props {
   roleId: string;
   /** Where the logo links: the role's first page. */
   home: string;
-  /** "P1" / "P2", or a month key ("2026-10") for a month with no imported data. */
+  /** "P1" / "P2", or a month key ("2026-10") for an imported or empty month. */
   selected: string;
-  periods: { id: "P1" | "P2"; short: string }[];
+  periods: { id: string; short: string }[];
   /** Months the user can open; value is what setPeriod receives. */
   months: { value: string; label: string; short: string; note: string }[];
   themes: { name: string; label: string }[];
@@ -91,7 +91,7 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
               aria-expanded={monthMenu}
               aria-haspopup="menu"
               aria-pressed={!!otherMonth}
-              aria-label={otherMonth ? `Month: ${otherMonth.label} (no data yet). Choose another month` : "Choose another month"}
+              aria-label={otherMonth ? `Month: ${otherMonth.label} (${otherMonth.note.charAt(0).toLowerCase()}${otherMonth.note.slice(1)}). Choose another month` : "Choose another month"}
               className={clsx("flex min-h-[36px] min-w-[36px] items-center justify-center gap-1 rounded-pill px-2 text-xs font-bold transition-colors sm:text-sm", otherMonth ? "bg-surface text-fg shadow-sm" : "text-fg-muted hover:text-fg")}
             >
               {otherMonth ? <span>{otherMonth.short}</span> : <CalendarDays className="size-4" aria-hidden="true" />}

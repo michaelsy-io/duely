@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { engine, normalizePeriod } from "@/lib/ai/context";
+import { preloadImports } from "@/lib/imports/load";
 import { getSession } from "@/lib/session";
 import {
   ESC_COOKIE_PREFIX,
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Only a supervisor, CFO or admin can decide escalations" }, { status: 403 });
   }
   const body = (await req.json().catch(() => ({}))) as { period?: string; client_code?: string; decision?: string };
+  await preloadImports(); // so an imported month ("2026-10") is recognised
   const period = normalizePeriod(body.period);
   if (!period) return NextResponse.json({ error: "period required" }, { status: 400 });
   if (!isDecisionKind(body.decision)) return NextResponse.json({ error: "decision must be approved, dismissed or open" }, { status: 400 });

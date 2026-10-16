@@ -1,5 +1,5 @@
 import { getCurrentResult } from "@/lib/data";
-import { getMonthSelection, getSession, roleChoiceId, monthLabel, monthList, periodForMonth, PERIODS, ROLES } from "@/lib/session";
+import { dataPeriods, getMonthSelection, getSession, roleChoiceId, monthLabel, monthList, periodForMonth, PERIODS, ROLES } from "@/lib/session";
 import { getTheme } from "@/lib/themes/server";
 import { themeList } from "@/lib/themes";
 import { clientName } from "@/lib/clients";
@@ -42,9 +42,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             roleId={roleChoiceId(session)}
             home={ROLES[session.role].home}
             selected={sel.period ?? sel.month}
-            periods={[{ id: "P2", short: PERIODS.P2.short }, { id: "P1", short: PERIODS.P1.short }]} // latest month first
+            periods={dataPeriods(sel.imported).slice(-2).reverse().map((p) => ({ id: p, short: PERIODS[p].short }))} // latest two months with data, newest first
             months={monthList().map((m) => {
-              const p = periodForMonth(m);
+              const p = periodForMonth(m, sel.imported);
               return { value: p ?? m, label: monthLabel(m), short: monthLabel(m, true).slice(0, 3), note: p ? `Books as of ${PERIODS[p].label}` : "No data yet" };
             })}
             themes={themeList()}

@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowUpRight, Download, Flag } from "lucide-react";
 import clsx from "clsx";
 import { getCurrentResult, getResult } from "@/lib/data";
 import { redirect } from "next/navigation";
-import { PERIODS, getMonthSelection, getSession } from "@/lib/session";
+import { PERIODS, getMonthSelection, getSession, previousPeriod } from "@/lib/session";
 import { clientName } from "@/lib/clients";
 import { BUCKETS, bucketColor, fmtDate, peso, pesoShort, pct } from "@/lib/format";
 import { Card, SectionTitle } from "@/components/ui";
@@ -15,16 +15,16 @@ export const metadata: Metadata = { title: "CFO view" };
 
 type Dir = "lower-better" | "higher-better";
 
-function Delta({ now, prev, dir, fmt }: { now: number; prev: number | undefined; dir: Dir; fmt: (n: number) => string }) {
+function Delta({ vs, now, prev, dir, fmt }: { vs: string; now: number; prev: number | undefined; dir: Dir; fmt: (n: number) => string }) {
   if (prev === undefined) return null;
   const d = now - prev;
-  if (Math.abs(d) < 1e-9) return <span className="text-xs font-semibold text-fg-subtle">No change vs 31 Aug</span>;
+  if (Math.abs(d) < 1e-9) return <span className="text-xs font-semibold text-fg-subtle">No change vs {vs}</span>;
   const good = dir === "lower-better" ? d < 0 : d > 0;
   const Icon = d > 0 ? ArrowUpRight : ArrowDownRight;
   return (
     <span className={clsx("inline-flex items-center gap-0.5 rounded-pill px-2 py-0.5 text-xs font-bold", good ? "bg-good-soft text-good-fg" : "bg-bad-soft text-bad-fg")}>
       <Icon className="size-3.5" aria-hidden="true" />
-      {d > 0 ? "+" : "-"}{fmt(Math.abs(d))} vs 31 Aug
+      {d > 0 ? "+" : "-"}{fmt(Math.abs(d))} vs {vs}
     </span>
   );
 }
@@ -46,9 +46,11 @@ export default async function CfoPage() {
   if (session.role === "collector") redirect("/today");
   if (!sel.period) return <EmptyMonth variant="cfo" sel={sel} canImport={session.role === "admin"} />;
   const { period, result: r } = await getCurrentResult();
-  const prev = period === "P2" ? await getResult("P1") : null;
+  const prevPeriod = previousPeriod(period, sel.imported);
+  const prev = prevPeriod ? await getResult(prevPeriod) : null;
   const k = r.kpis;
   const pk = prev?.kpis;
+  const vs = prevPeriod ? PERIODS[prevPeriod].short : "";
   const gap = k.allowance - k.estimatedBadDebt;
   const totalB = BUCKETS.reduce((a, b) => a + k.buckets[b], 0);
   const maxInflow = Math.max(...r.inflow.map((w) => w.total), 1);
@@ -62,23 +64,23 @@ export default async function CfoPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="h-display text-4xl sm:text-5xl">Receivables at a glance</h1>
-          <p className="mt-2 text-fg-muted">Month ending {PERIODS[period].label}{prev && " · compared with 31 Aug"}. All figures from the rules engine.</p>
+          <p className="mt-2 text-fg-muted">Month ending {PERIODS[period].label}{prevPeriod && ` · compared with ${PERIODS[prevPeriod].short}`}. All figures from the rules engine.</p>
         </div>
         <a href={`/cfo/report?period=${period}`} className="btn btn-secondary"><Download className="size-4" aria-hidden="true" />Month report</a>
       </div>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Tile tone="primary" label="Total receivables" value={<CountUp value={k.totalAr} text={pesoShort(k.totalAr)} format="pesoShort" />} note={<>Ledger {peso(k.ledgerAr)} · gap {peso(r.control.gap)}</>} />
-        <Tile label="Days sales outstanding (DSO)" hint="DSO: on average, how many days it takes to collect a sale. Lower is better." note="Average days to turn a sale into cash" value={<><CountUp value={k.dso} text={k.dso.toFixed(1)} format="fixed" digits={1} /><span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
-        <Tile label="Collection efficiency" value={<CountUp value={k.collectionEfficiency} text={pct(k.collectionEfficiency)} format="pct" />} note="Collected this month vs collectible" delta={<Delta now={k.collectionEfficiency} prev={pk?.collectionEfficiency} dir="higher-better" fmt={pp} />} />
-        <Tile label="Over 60 / over 90 days" value={<><CountUp value={k.pctOver60} text={pct(k.pctOver60)} format="pct" /> <span className="text-fg-subtle">/</span> <CountUp value={k.pctOver90} text={pct(k.pctOver90)} format="pct" /></>} note="Share of total receivables" delta={<Delta now={k.pctOver60} prev={pk?.pctOver60} dir="lower-better" fmt={pp} />} />
-        <Tile label="At risk" value={<CountUp value={k.atRisk} text={peso(k.atRisk)} format="peso" />} note="90+ days plus unreplaced bounced checks" delta={<Delta now={k.atRisk} prev={pk?.atRisk} dir="lower-better" fmt={pesoShort} />} />
+        <Tile label="Days sales outstanding (DSO)" hint="DSO: on average, how many days it takes to collect a sale. Lower is better." note="Average days to turn a sale into cash" value={<><CountUp value={k.dso} text={k.dso.toFixed(1)} format="fixed" digits={1} /><span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta vs={vs} now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
+        <Tile label="Collection efficiency" value={<CountUp value={k.collectionEfficiency} text={pct(k.collectionEfficiency)} format="pct" />} note="Collected this month vs collectible" delta={<Delta vs={vs} now={k.collectionEfficiency} prev={pk?.collectionEfficiency} dir="higher-better" fmt={pp} />} />
+        <Tile label="Over 60 / over 90 days" value={<><CountUp value={k.pctOver60} text={pct(k.pctOver60)} format="pct" /> <span className="text-fg-subtle">/</span> <CountUp value={k.pctOver90} text={pct(k.pctOver90)} format="pct" /></>} note="Share of total receivables" delta={<Delta vs={vs} now={k.pctOver60} prev={pk?.pctOver60} dir="lower-better" fmt={pp} />} />
+        <Tile label="At risk" value={<CountUp value={k.atRisk} text={peso(k.atRisk)} format="peso" />} note="90+ days plus unreplaced bounced checks" delta={<Delta vs={vs} now={k.atRisk} prev={pk?.atRisk} dir="lower-better" fmt={pesoShort} />} />
         <Tile
           tone={gap < 0 ? "bad" : undefined}
           label="Est. bad debt vs allowance"
           value={<CountUp value={k.estimatedBadDebt} text={peso(k.estimatedBadDebt)} format="peso" />}
           note={gap < 0 ? <>Allowance {peso(k.allowance)} is short by {peso(-gap)}</> : <>Allowance {peso(k.allowance)} covers it with {peso(gap)} to spare</>}
-          delta={<Delta now={k.estimatedBadDebt} prev={pk?.estimatedBadDebt} dir="lower-better" fmt={pesoShort} />}
+          delta={<Delta vs={vs} now={k.estimatedBadDebt} prev={pk?.estimatedBadDebt} dir="lower-better" fmt={pesoShort} />}
         />
       </section>
 

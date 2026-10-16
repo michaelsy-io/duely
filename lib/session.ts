@@ -1,12 +1,50 @@
 import { cookies } from "next/headers";
+import { addMonths, dayLabel, inMonthRange, isMonthKey, monthEnd, monthLabel, type MonthKey } from "@/lib/months";
 
-export type Period = "P1" | "P2";
+export { addMonths, dayLabel, inMonthRange, isMonthKey, monthEnd, monthLabel, monthList, MONTH_RANGE, type MonthKey } from "@/lib/months";
+
+/** The two bundled demo periods (data/demo/P1_2026-08-31, P2_2026-09-30). */
+export type DemoPeriod = "P1" | "P2";
+/** A month imported on the Import page: its id is the month key, e.g. "2026-10". */
+export type ImportedPeriod = `${number}-${number}`;
+/** A data period: a bundled demo period or an imported month. */
+export type Period = DemoPeriod | ImportedPeriod;
 export type Role = "collector" | "supervisor" | "cfo" | "admin";
 
-export const PERIODS: Record<Period, { asOf: string; label: string; short: string; folder: string; month: MonthKey }> = {
+export interface PeriodInfo {
+  /** Books' as-of date (the month end). */
+  asOf: string;
+  /** "31 Aug 2026" */
+  label: string;
+  /** "31 Aug" */
+  short: string;
+  /** Bundled data folder; null for an imported month. */
+  folder: string | null;
+  month: MonthKey;
+}
+
+const DEMO_PERIODS: Record<DemoPeriod, PeriodInfo> = {
   P1: { asOf: "2026-08-31", label: "31 Aug 2026", short: "31 Aug", folder: "P1_2026-08-31", month: "2026-08" },
   P2: { asOf: "2026-09-30", label: "30 Sep 2026", short: "30 Sep", folder: "P2_2026-09-30", month: "2026-09" },
 };
+
+/** Facts about any data period. An imported month's as-of date is its month end. */
+export function periodInfo(p: Period): PeriodInfo {
+  if (isPeriod(p)) return DEMO_PERIODS[p];
+  const asOf = monthEnd(p);
+  return { asOf, label: dayLabel(asOf), short: dayLabel(asOf, true), folder: null, month: p };
+}
+
+/**
+ * Period facts by id. The bundled periods are listed (Object.keys gives P1, P2); an imported
+ * month key ("2026-10") is looked up through periodInfo, so `PERIODS[period].label` works for both.
+ */
+export const PERIODS = new Proxy(DEMO_PERIODS, {
+  get(target, key) {
+    if (typeof key === "string" && isMonthKey(key)) return periodInfo(key as ImportedPeriod);
+    return Reflect.get(target, key);
+  },
+}) as Readonly<Record<DemoPeriod, PeriodInfo>> & Readonly<Record<Period, PeriodInfo>>;
 
 export const ROLES: Record<Role, { label: string; person: string; home: string }> = {
   collector: { label: "Collecting Agent", person: "Collecting Agent", home: "/today" },
@@ -15,14 +53,15 @@ export const ROLES: Record<Role, { label: string; person: string; home: string }
   admin: { label: "Admin", person: "Admin", home: "/today" },
 };
 
-/** Month the app opens on when no month is picked this visit: always the latest books (now 30 Sep 2026). */
-export const DEFAULT_PERIOD: Period = (Object.keys(PERIODS) as Period[]).reduce((a, b) => (PERIODS[b].asOf > PERIODS[a].asOf ? b : a));
+/** Latest bundled period (30 Sep 2026). For code with no request around; pages open on latestDataMonth(). */
+export const DEFAULT_PERIOD: DemoPeriod = (Object.keys(DEMO_PERIODS) as DemoPeriod[]).reduce((a, b) => (DEMO_PERIODS[b].asOf > DEMO_PERIODS[a].asOf ? b : a));
 
 /** Cookie holding the month picked this visit. Session-only, so every new visit opens on the latest month.
  * (Renamed from `duely_period`, which was kept for a year and pinned old browsers to 31 Aug.) */
 export const PERIOD_COOKIE = "duely_month";
 
-export function isPeriod(v: unknown): v is Period {
+/** A bundled demo period id ("P1" / "P2"). Imported months are month keys (see isMonthKey). */
+export function isPeriod(v: unknown): v is DemoPeriod {
   return v === "P1" || v === "P2";
 }
 export function isRole(v: unknown): v is Role {
@@ -30,61 +69,43 @@ export function isRole(v: unknown): v is Role {
 }
 
 // ---------- Months ----------
-// The `duely_month` cookie holds either a data period ("P1" / "P2") or a month key ("2026-10")
-// for a month whose month-end files have not been imported yet. Pages render an empty dashboard
-// for such months; the chat, API routes and anything that needs engine numbers fall back to the
-// nearest data period (see dataPeriodForMonth).
-
-/** "YYYY-MM" */
-export type MonthKey = string;
-
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-/** Months the user can open as dashboards (and browse in the calendar). */
-export const MONTH_RANGE = { first: "2026-06", last: "2026-12" } as const;
-
-export function isMonthKey(v: unknown): v is MonthKey {
-  return typeof v === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(v);
-}
-
-export function inMonthRange(m: MonthKey): boolean {
-  return m >= MONTH_RANGE.first && m <= MONTH_RANGE.last;
-}
-
-export function addMonths(m: MonthKey, n: number): MonthKey {
-  const [y, mo] = m.split("-").map(Number);
-  const t = y * 12 + (mo - 1) + n;
-  return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, "0")}`;
-}
-
-export function monthList(): MonthKey[] {
-  const out: MonthKey[] = [];
-  for (let m: MonthKey = MONTH_RANGE.first; m <= MONTH_RANGE.last; m = addMonths(m, 1)) out.push(m);
-  return out;
-}
-
-/** Last calendar day of a month as an ISO date (pure string maths, no clock). */
-export function monthEnd(m: MonthKey): string {
-  const [y, mo] = m.split("-").map(Number);
-  const days = [31, (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
-  return `${m}-${String(days).padStart(2, "0")}`;
-}
-
-export function monthLabel(m: MonthKey, short = false): string {
-  const [y, mo] = m.split("-").map(Number);
-  const name = MONTH_NAMES[mo - 1] ?? m;
-  return `${short ? name.slice(0, 3) : name} ${y}`;
-}
+// The `duely_month` cookie holds either a bundled period ("P1" / "P2") or a month key ("2026-10").
+// A month key is a data period when that month has imported files (lib/db/imports.ts); otherwise
+// pages render an empty dashboard, and the chat, API routes and anything that needs engine
+// numbers fall back to the nearest data period (see dataPeriodForMonth).
+// `imported` arguments are the month keys that have an import (importedMonthKeys()).
 
 /** The data period whose month-end books are for this month, if any. */
-export function periodForMonth(m: MonthKey): Period | null {
-  return (Object.keys(PERIODS) as Period[]).find((p) => PERIODS[p].month === m) ?? null;
+export function periodForMonth(m: MonthKey, imported: readonly MonthKey[] = []): Period | null {
+  const demo = (Object.keys(DEMO_PERIODS) as DemoPeriod[]).find((p) => DEMO_PERIODS[p].month === m);
+  if (demo) return demo;
+  return isMonthKey(m) && imported.includes(m) ? (m as ImportedPeriod) : null;
+}
+
+/** Every data period, oldest first. */
+export function dataPeriods(imported: readonly MonthKey[] = []): Period[] {
+  const ps: Period[] = [...(Object.keys(DEMO_PERIODS) as DemoPeriod[])];
+  for (const m of imported) if (isMonthKey(m) && !ps.some((p) => PERIODS[p].month === m)) ps.push(m as ImportedPeriod);
+  return ps.sort((a, b) => PERIODS[a].month.localeCompare(PERIODS[b].month));
 }
 
 /** Nearest data period: the earliest one closing on or after this month, else the latest one. */
-export function dataPeriodForMonth(m: MonthKey): Period {
-  const ps = (Object.keys(PERIODS) as Period[]).sort((a, b) => PERIODS[a].month.localeCompare(PERIODS[b].month));
+export function dataPeriodForMonth(m: MonthKey): DemoPeriod;
+export function dataPeriodForMonth(m: MonthKey, imported: readonly MonthKey[]): Period;
+export function dataPeriodForMonth(m: MonthKey, imported: readonly MonthKey[] = []): Period {
+  const ps = dataPeriods(imported);
   return ps.find((p) => PERIODS[p].month >= m) ?? ps[ps.length - 1];
+}
+
+/** The latest month with data: where the app opens when no month is picked this visit. */
+export function latestDataMonth(imported: readonly MonthKey[] = []): MonthKey {
+  const ps = dataPeriods(imported);
+  return PERIODS[ps[ps.length - 1]].month;
+}
+
+/** The data period for the month before this one, if any (month-on-month comparisons). */
+export function previousPeriod(p: Period, imported: readonly MonthKey[] = []): Period | null {
+  return periodForMonth(addMonths(PERIODS[p].month, -1), imported);
 }
 
 export interface MonthSelection {
@@ -100,25 +121,36 @@ export interface MonthSelection {
   short: string;
   /** Demo "today": the data period's as-of date. */
   today: string;
+  /** Months that have imported files. */
+  imported: MonthKey[];
 }
 
-export function selectionFor(m: MonthKey): MonthSelection {
-  const period = periodForMonth(m);
-  const dataPeriod = period ?? dataPeriodForMonth(m);
-  return { month: m, period, dataPeriod, label: monthLabel(m), short: monthLabel(m, true), today: PERIODS[dataPeriod].asOf };
+export function selectionFor(m: MonthKey, imported: readonly MonthKey[] = []): MonthSelection {
+  const period = periodForMonth(m, imported);
+  const dataPeriod = period ?? dataPeriodForMonth(m, imported);
+  return { month: m, period, dataPeriod, label: monthLabel(m), short: monthLabel(m, true), today: PERIODS[dataPeriod].asOf, imported: [...imported] };
 }
 
-/** Normalise a raw cookie / form value into a cookie value: a Period, an in-range month key, or null. */
-export function parsePeriodValue(v: unknown): Period | MonthKey | null {
+/** Normalise a raw cookie / form value into a cookie value: a bundled period, an in-range month key, or null. */
+export function parsePeriodValue(v: unknown): DemoPeriod | MonthKey | null {
   if (isPeriod(v)) return v;
-  if (isMonthKey(v) && inMonthRange(v)) return periodForMonth(v) ?? v;
+  if (isMonthKey(v) && inMonthRange(v)) return (periodForMonth(v) as DemoPeriod | null) ?? v;
   return null;
 }
 
-/** The month the user is looking at, from the `duely_month` cookie (default DEFAULT_PERIOD, 30 Sep 2026). */
+/** Month for a raw cookie value; with no valid value, the latest month with data. */
+export function monthForCookieValue(v: unknown, imported: readonly MonthKey[] = []): MonthKey {
+  const parsed = parsePeriodValue(v);
+  if (!parsed) return latestDataMonth(imported);
+  return isPeriod(parsed) ? DEMO_PERIODS[parsed].month : parsed;
+}
+
+/** The month the user is looking at, from the `duely_month` cookie (default: the latest month with data). */
 export async function getMonthSelection(): Promise<MonthSelection> {
-  const v = parsePeriodValue((await cookies()).get(PERIOD_COOKIE)?.value) ?? DEFAULT_PERIOD;
-  return selectionFor(isPeriod(v) ? PERIODS[v].month : v);
+  // Loaded on demand so the middleware (which imports this module for ROLES) does not bundle the database client.
+  const { importedMonthKeys } = await import("@/lib/db/imports");
+  const [jar, imported] = await Promise.all([cookies(), importedMonthKeys()]);
+  return selectionFor(monthForCookieValue(jar.get(PERIOD_COOKIE)?.value, imported), imported);
 }
 
 /** Data period for engine numbers. For an empty month this is the nearest data period. */

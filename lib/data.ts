@@ -2,14 +2,15 @@ import { cache } from "react";
 import { getDemoResult } from "@/lib/engine/demo";
 import type { FullEngineResult } from "@/lib/engine";
 import { buildMockResult } from "@/lib/mock-result";
-import { getPeriodFromCookie as periodCookie, type Period } from "@/lib/session";
+import { ensureImport, importResult } from "@/lib/imports/load";
+import { DEFAULT_PERIOD, getPeriodFromCookie as periodCookie, isPeriod, type DemoPeriod, type Period } from "@/lib/session";
 
 export type { Period };
 export type AppResult = FullEngineResult & { source: "engine" | "mock" };
 export const getPeriodFromCookie = periodCookie;
 
 /** Last-resort fallback: the hand-typed P1 mock, padded to the full engine shape. */
-function mockAsFull(period: Period): FullEngineResult {
+function mockAsFull(period: DemoPeriod): FullEngineResult {
   const m = buildMockResult(period);
   const pdcsAll = m.pdcs.map((p) => ({ ...p, inCalendar: true, invoices_covered: null }));
   return {
@@ -27,13 +28,23 @@ function mockAsFull(period: Period): FullEngineResult {
   };
 }
 
-/** Engine result for a demo period (real engine; mock only if the engine throws). */
+/**
+ * Engine result for a data period: a bundled demo period, or an imported month (as of its month
+ * end). Real engine; mock only if the engine throws. An import that has since vanished (reverted,
+ * or held by another server instance) falls back to the latest bundled books.
+ */
 export const getResult = cache(async (period: Period): Promise<AppResult> => {
+  const demo: DemoPeriod = isPeriod(period) ? period : DEFAULT_PERIOD;
   try {
-    return { ...getDemoResult(period), source: "engine" };
+    if (!isPeriod(period)) {
+      const res = (await ensureImport(period)) ? importResult(period) : null;
+      if (res) return { ...res, source: "engine" };
+      console.warn(`[duely] no imported books for ${period}; showing ${demo}`);
+    }
+    return { ...getDemoResult(demo), source: "engine" };
   } catch (e) {
     console.error("[duely] engine failed, using mock:", e);
-    return { ...mockAsFull(period), source: "mock" };
+    return { ...mockAsFull(demo), source: "mock" };
   }
 });
 

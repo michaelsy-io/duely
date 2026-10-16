@@ -4,39 +4,52 @@ import { getDemoResult } from "@/lib/engine/demo";
 import { parseCsv, type RawRow } from "@/lib/engine/csv";
 import type { EngineResult, FollowUpRow } from "@/lib/engine/types";
 import { clientName, clientProfile } from "@/lib/clients";
-import { DEFAULT_PERIOD, PERIOD_COOKIE, parsePeriodValue, selectionFor, isPeriod } from "@/lib/session";
+import { DEFAULT_PERIOD, PERIOD_COOKIE, isMonthKey, isPeriod, monthForCookieValue, periodForMonth, selectionFor, type ImportedPeriod, type Period } from "@/lib/session";
+import { importRawTable, importResult, loadedImportMonths, preloadImports } from "@/lib/imports/load";
 
-export type Period = "P1" | "P2";
+export type { Period };
 export { PERIOD_COOKIE };
 
+/**
+ * "P1" / "P2" (or "P1_2026-08-31"), a bundled month key ("2026-09" → "P2"), or an imported month
+ * that is loaded in this server instance ("2026-10"). Anything else → null.
+ * Sync: async entry points call resolvePeriod (or preloadImports) first so imports are loaded.
+ */
 export function normalizePeriod(p: unknown): Period | null {
-  const s = String(p ?? "").toUpperCase();
+  const raw = String(p ?? "").trim();
+  const s = raw.toUpperCase();
   if (s.startsWith("P1")) return "P1";
   if (s.startsWith("P2")) return "P2";
+  if (isMonthKey(raw)) return periodForMonth(raw, loadedImportMonths());
   return null;
 }
 
-/** Data period for a raw `duely_month` cookie value: "P1"/"P2", or a month key mapped to its nearest data period. */
+/** Data period for a raw `duely_month` cookie value: "P1"/"P2", an imported month, or a month key mapped to its nearest data period. */
 export function periodFromCookieValue(v: unknown): Period {
-  const parsed = parsePeriodValue(v);
-  if (!parsed) return DEFAULT_PERIOD;
-  return isPeriod(parsed) ? parsed : selectionFor(parsed).dataPeriod;
+  const imported = loadedImportMonths();
+  return selectionFor(monthForCookieValue(v, imported), imported).dataPeriod;
 }
 
-/** Period from explicit value, else the `duely_month` cookie (month keys map to their data period), else DEFAULT_PERIOD (P2). Safe outside a request scope. */
+/**
+ * Period from explicit value, else the `duely_month` cookie (month keys map to their data period),
+ * else the latest month with data. Loads imported months first. Safe outside a request scope.
+ */
 export async function resolvePeriod(explicit?: unknown): Promise<Period> {
+  await preloadImports();
   const p = normalizePeriod(explicit);
   if (p) return p;
   try {
     const { cookies } = await import("next/headers");
     return periodFromCookieValue((await cookies()).get(PERIOD_COOKIE)?.value);
   } catch {
-    return DEFAULT_PERIOD;
+    return periodFromCookieValue(null);
   }
 }
 
+/** Engine result for a period. An imported month that is not loaded falls back to the latest bundled books. */
 export function engine(period: Period): EngineResult {
-  return getDemoResult(period);
+  if (isPeriod(period)) return getDemoResult(period);
+  return importResult(period as ImportedPeriod) ?? getDemoResult(DEFAULT_PERIOD);
 }
 
 // ---------- raw demo CSVs (open invoices, activity history) ----------
@@ -54,6 +67,7 @@ function periodDir(period: Period): string | null {
 }
 
 export function readDemoCsv(period: Period, file: string): RawRow[] {
+  if (!isPeriod(period)) return importRawTable(period, file) ?? readDemoCsv(DEFAULT_PERIOD, file);
   const key = `${period}/${file}`;
   const cached = csvCache.get(key);
   if (cached) return cached;

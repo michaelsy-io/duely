@@ -3,7 +3,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { cache } from "react";
-import { PERIODS, type Period } from "@/lib/session";
+import { DEFAULT_PERIOD, isPeriod, PERIODS, type Period } from "@/lib/session";
+import { ensureImport, importTextTable } from "@/lib/imports/load";
 
 type Row = Record<string, string>;
 
@@ -36,11 +37,16 @@ function parseCsv(text: string): Row[] {
 // Demo CSVs never change at runtime, so parse each file once per server instance.
 const tableCache = new Map<string, Promise<Row[]>>();
 
-export const readTable = cache((period: Period, name: string): Promise<Row[]> => {
+export const readTable = cache(async (period: Period, name: string): Promise<Row[]> => {
+  // Imported month: rows come from the stored files (bundled latest books if the import is gone).
+  if (!isPeriod(period)) {
+    if (await ensureImport(period)) return importTextTable(period, name) ?? [];
+    period = DEFAULT_PERIOD;
+  }
   const key = `${period}/${name}`;
   let hit = tableCache.get(key);
   if (!hit) {
-    const file = path.join(process.cwd(), "data", "demo", PERIODS[period].folder, `${name}.csv`);
+    const file = path.join(process.cwd(), "data", "demo", PERIODS[period].folder ?? "", `${name}.csv`);
     hit = fs.readFile(file, "utf8").then(parseCsv, () => [] as Row[]);
     tableCache.set(key, hit);
   }
