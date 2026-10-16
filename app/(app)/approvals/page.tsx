@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { getCurrentResult } from "@/lib/data";
-import { getSession, PERIODS } from "@/lib/session";
+import { getSession, PERIODS, getMonthSelection } from "@/lib/session";
 import { clientName } from "@/lib/clients";
 import { peso } from "@/lib/format";
 import { listDrafts } from "@/lib/db/drafts";
@@ -9,6 +10,8 @@ import { ApprovalsQueue, type Draft } from "./ApprovalsQueue";
 export const metadata: Metadata = { title: "Approvals" };
 
 export default async function ApprovalsPage() {
+  const sel = await getMonthSelection();
+  if (!sel.period) return <EmptyMonth variant="approvals" sel={sel} />;
   const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
   // Load drafts on the server so the page arrives filled in, with no client-side "Loading drafts" flash.
   const initialDrafts = (await listDrafts(period).catch(() => null)) as Draft[] | null;

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { Bell, Check, ChevronDown, LogOut, Palette, Upload, UserRound } from "lucide-react";
+import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette, Upload, UserRound } from "lucide-react";
 import { setPeriod, setTheme, signOut, switchRole } from "@/app/actions";
 import { LogoMark } from "@/components/Logo";
 
@@ -13,8 +13,11 @@ interface Props {
   greeting: string;
   name: string;
   role: string;
-  period: "P1" | "P2";
+  /** "P1" / "P2", or a month key ("2026-10") for a month with no imported data. */
+  selected: string;
   periods: { id: "P1" | "P2"; short: string }[];
+  /** Months the user can open; value is what setPeriod receives. */
+  months: { value: string; label: string; short: string; note: string }[];
   themes: { name: string; label: string }[];
   theme: string;
   notices: Notice[];
@@ -40,10 +43,13 @@ function useOutside<T extends HTMLElement>(open: boolean, close: () => void) {
   return ref;
 }
 
-export function Header({ greeting, name, role, period, periods, themes, theme, notices }: Props) {
+export function Header({ greeting, name, role, selected, periods, months, themes, theme, notices }: Props) {
   const [pending, start] = useTransition();
   const [menu, setMenu] = useState(false);
   const [bell, setBell] = useState(false);
+  const [monthMenu, setMonthMenu] = useState(false);
+  const monthRef = useOutside<HTMLDivElement>(monthMenu, () => setMonthMenu(false));
+  const otherMonth = months.find((m) => m.value === selected && !periods.some((p) => p.id === selected));
   const menuRef = useOutside<HTMLDivElement>(menu, () => setMenu(false));
   const bellRef = useOutside<HTMLDivElement>(bell, () => setBell(false));
 
@@ -56,19 +62,57 @@ export function Header({ greeting, name, role, period, periods, themes, theme, n
           <p className="truncate font-display text-lg font-extrabold leading-tight tracking-tight sm:text-xl">{name}</p>
         </div>
 
-        <div className="flex items-center gap-1 rounded-pill bg-surface-3 p-1" role="group" aria-label="Books as of">
-          <span className="hidden pl-2.5 pr-1 text-xs font-semibold text-fg-muted sm:inline">As of</span>
-          {periods.map((p) => (
+        <div className="relative" ref={monthRef}>
+          <div className="flex items-center gap-1 rounded-pill bg-surface-3 p-1" role="group" aria-label="Books as of">
+            <span className="hidden pl-2.5 pr-1 text-xs font-semibold text-fg-muted sm:inline">As of</span>
+            {periods.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={selected === p.id}
+                onClick={() => start(() => setPeriod(p.id))}
+                className={clsx("min-h-[36px] rounded-pill px-2.5 text-xs font-bold transition-colors sm:px-3 sm:text-sm", selected === p.id ? "bg-surface text-fg shadow-sm" : "text-fg-muted hover:text-fg")}
+              >
+                {p.short}
+              </button>
+            ))}
             <button
-              key={p.id}
               type="button"
-              aria-pressed={period === p.id}
-              onClick={() => start(() => setPeriod(p.id))}
-              className={clsx("min-h-[36px] rounded-pill px-3 text-xs font-bold transition-colors sm:text-sm", period === p.id ? "bg-surface text-fg shadow-sm" : "text-fg-muted hover:text-fg")}
+              onClick={() => setMonthMenu((v) => !v)}
+              aria-expanded={monthMenu}
+              aria-haspopup="menu"
+              aria-pressed={!!otherMonth}
+              aria-label={otherMonth ? `Month: ${otherMonth.label} (no data yet). Choose another month` : "Choose another month"}
+              className={clsx("flex min-h-[36px] min-w-[36px] items-center justify-center gap-1 rounded-pill px-2 text-xs font-bold transition-colors sm:text-sm", otherMonth ? "bg-surface text-fg shadow-sm" : "text-fg-muted hover:text-fg")}
             >
-              {p.short}
+              {otherMonth ? <span>{otherMonth.short}</span> : <CalendarDays className="size-4" aria-hidden="true" />}
+              <ChevronDown className="hidden size-3.5 sm:block" aria-hidden="true" />
             </button>
-          ))}
+          </div>
+          {monthMenu && (
+            <div role="menu" aria-label="Months" className="anim-fade z-30 rounded-card max-sm:fixed max-sm:inset-x-4 max-sm:top-[68px] sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[280px] border border-border bg-surface p-2 shadow-float">
+              <p className="px-3 pb-1 pt-2 eyebrow">Open month</p>
+              {months.map((m) => (
+                <button
+                  key={m.value}
+                  role="menuitemradio"
+                  aria-checked={selected === m.value}
+                  type="button"
+                  onClick={() => start(async () => { await setPeriod(m.value); setMonthMenu(false); })}
+                  className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl px-3 text-left hover:bg-surface-2"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{m.label}</span>
+                    <span className={clsx("block text-xs", m.note.startsWith("Books") ? "text-good-fg" : "text-fg-subtle")}>{m.note}</span>
+                  </span>
+                  {selected === m.value && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
+                </button>
+              ))}
+              <Link href="/calendar" onClick={() => setMonthMenu(false)} className="mt-1 flex min-h-[44px] items-center gap-2 rounded-2xl border-t border-border px-3 text-sm font-semibold text-primary hover:bg-surface-2">
+                <CalendarDays className="size-4" aria-hidden="true" /> Open calendar
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="relative" ref={bellRef}>
@@ -115,7 +159,10 @@ export function Header({ greeting, name, role, period, periods, themes, theme, n
                   {theme === t.name && <Check className="size-4 text-primary" aria-hidden="true" />}
                 </button>
               ))}
-              <Link href="/import" onClick={() => setMenu(false)} className="mt-1 flex min-h-[44px] items-center gap-2 rounded-2xl border-t border-border px-3 text-sm font-semibold hover:bg-surface-2 lg:hidden">
+              <Link href="/calendar" onClick={() => setMenu(false)} className="mt-1 flex min-h-[44px] items-center gap-2 rounded-2xl border-t border-border px-3 text-sm font-semibold hover:bg-surface-2 lg:hidden">
+                <CalendarDays className="size-4" aria-hidden="true" /> Calendar
+              </Link>
+              <Link href="/import" onClick={() => setMenu(false)} className="flex min-h-[44px] items-center gap-2 rounded-2xl px-3 text-sm font-semibold hover:bg-surface-2 lg:hidden">
                 <Upload className="size-4" aria-hidden="true" /> Import files
               </Link>
               <form action={signOut} className="mt-1 border-t border-border pt-1">

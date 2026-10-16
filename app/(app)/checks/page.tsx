@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { AlertTriangle, Banknote, CalendarCheck2 } from "lucide-react";
 import { getCurrentResult } from "@/lib/data";
-import { getSession, PERIODS } from "@/lib/session";
+import { getSession, PERIODS, getMonthSelection } from "@/lib/session";
 import { customers } from "@/lib/demo-tables";
 import { clientName } from "@/lib/clients";
 import { fmtDate, peso } from "@/lib/format";
@@ -14,6 +15,8 @@ import { RevealOnView } from "@/components/motion/Grow";
 export const metadata: Metadata = { title: "Checks" };
 
 export default async function ChecksPage() {
+  const sel = await getMonthSelection();
+  if (!sel.period) return <EmptyMonth variant="checks" sel={sel} />;
   const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
   const cust = await customers(period);
   const collectorOf = Object.fromEntries(cust.map((c) => [c.client_code, c.collector]));

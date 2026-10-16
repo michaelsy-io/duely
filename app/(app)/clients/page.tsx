@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { getCurrentResult } from "@/lib/data";
-import { getSession } from "@/lib/session";
+import { getSession, getMonthSelection } from "@/lib/session";
 import { customers, readTable } from "@/lib/demo-tables";
 import { allClients, avatarColor, initials } from "@/lib/clients";
 import { bucketTone, peso } from "@/lib/format";
@@ -9,6 +10,8 @@ import { ClientSearch, type ClientItem } from "./ClientSearch";
 export const metadata: Metadata = { title: "Clients" };
 
 export default async function ClientsPage() {
+  const sel = await getMonthSelection();
+  if (!sel.period) return <EmptyMonth variant="clients" sel={sel} />;
   const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
   const [cust, aging] = await Promise.all([customers(period), readTable(period, "ar_aging")]);
   const byCode = Object.fromEntries(cust.map((c) => [c.client_code, c]));
