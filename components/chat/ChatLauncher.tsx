@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { Maximize2, MessageCircle, X } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChatPanel } from "./ChatPanel";
 
@@ -71,11 +70,8 @@ export function ChatLauncher({ period }: { period: string }) {
         <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3">
           <p className="font-display text-lg font-extrabold tracking-tight">Ask Duely</p>
           <div className="flex items-center gap-1">
-            <Link href="/ask" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full hover:bg-surface-2" aria-label="Open full page">
-              <Maximize2 className="size-4" aria-hidden="true" />
-            </Link>
-            <button type="button" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full hover:bg-surface-2" aria-label="Close (your chat is kept)">
-              <X className="size-5" aria-hidden="true" />
+            <button type="button" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-full hover:bg-surface-2" aria-label="Minimise (your chat is kept)" title="Minimise (your chat is kept)">
+              <ChevronDown className="size-5" aria-hidden="true" />
             </button>
           </div>
         </div>
