@@ -175,7 +175,7 @@ export function Landing() {
           <div className="scene">
             <div className="phone" data-speed="-0.05">
               <div className="screen">
-                <div className="top"><small>Collector 2 · overdue in your accounts</small><div className="bal num">₱5.6M</div><small style={{color:"#7EE2B8"}}>₱1.4M promised today · 56% of goal</small></div>
+                <div className="top"><small>Collecting Agent · overdue in your accounts</small><div className="bal num">₱5.6M</div><small style={{color:"#7EE2B8"}}>₱1.4M promised today · 56% of goal</small></div>
                 <div className="acts">
                   <span><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#AB9FF2" strokeWidth="2.2" aria-hidden="true"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg></i>Call</span>
                   <span><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#AB9FF2" strokeWidth="2.2" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z" /></svg></i>Message</span>

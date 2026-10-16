@@ -35,10 +35,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="app-content lg:ml-64">
           <Header
             greeting={greeting}
-            name={session.role === "collector" ? `Hi, ${session.collector}` : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
+            name={session.role === "collector" ? "Hi, Collecting Agent" : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
             role={session.roleLabel}
             selected={sel.period ?? sel.month}
-            periods={[{ id: "P1", short: PERIODS.P1.short }, { id: "P2", short: PERIODS.P2.short }]}
+            periods={[{ id: "P2", short: PERIODS.P2.short }, { id: "P1", short: PERIODS.P1.short }]} // latest month first
             months={monthList().map((m) => {
               const p = periodForMonth(m);
               return { value: p ?? m, label: monthLabel(m), short: monthLabel(m, true).slice(0, 3), note: p ? `Books as of ${PERIODS[p].label}` : "No data yet" };

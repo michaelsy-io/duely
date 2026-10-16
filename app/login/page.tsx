@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 export const metadata: Metadata = { title: "Sign in" };
 
 const ROLES = [
-  { id: "collector", title: "Collector 2", body: "Your ranked call list, checks to deposit and one-tap logging.", icon: Phone, tone: "bg-primary text-primary-fg" },
+  { id: "collector", title: "Collecting Agent", body: "Your ranked call list, checks to deposit and one-tap logging.", icon: Phone, tone: "bg-primary text-primary-fg" },
   { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg" },
   { id: "cfo", title: "CFO", body: "One page: DSO, aging, cash coming in, bad debt vs allowance.", icon: Briefcase, tone: "bg-good-soft text-good-fg" },
   { id: "admin", title: "Admin", body: "Upload exports, match columns, settle reconciliation questions.", icon: Upload, tone: "bg-warn-soft text-warn-fg" },

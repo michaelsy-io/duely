@@ -9,7 +9,7 @@ export const PERIODS: Record<Period, { asOf: string; label: string; short: strin
 };
 
 export const ROLES: Record<Role, { label: string; person: string; home: string }> = {
-  collector: { label: "Collector 2", person: "Collector 2", home: "/today" },
+  collector: { label: "Collecting Agent", person: "Collecting Agent", home: "/today" },
   supervisor: { label: "Supervisor", person: "Supervisor", home: "/today" },
   cfo: { label: "CFO", person: "CFO", home: "/cfo" },
   admin: { label: "Admin", person: "Admin", home: "/today" },
@@ -133,5 +133,5 @@ export async function getSession(): Promise<Session> {
   const r = jar.get("duely_role")?.value;
   const role: Role = isRole(r) ? r : "supervisor";
   const collector = role === "collector" ? jar.get("duely_collector")?.value || "Collector 2" : null;
-  return { role, roleLabel: role === "collector" && collector ? collector : ROLES[role].label, collector, signedIn: isRole(r) };
+  return { role, roleLabel: ROLES[role].label, collector, signedIn: isRole(r) };
 }

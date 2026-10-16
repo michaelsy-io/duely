@@ -24,7 +24,7 @@ interface Props {
 }
 
 const ROLE_OPTIONS = [
-  { id: "collector", label: "Collector 2" },
+  { id: "collector", label: "Collecting Agent" },
   { id: "supervisor", label: "Supervisor" },
   { id: "cfo", label: "CFO" },
   { id: "admin", label: "Admin" },
