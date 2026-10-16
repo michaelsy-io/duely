@@ -4,7 +4,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { ReceiptMark } from "@/components/brand/ReceiptMark";
 
 const ROWS: [string, string, string, string, string, string, string][] = [
   ["LE", "Lumen Eye Clinic", "Credit hold", "₱601,661", "65 days", "#FF8FB1", "#FF7A85"],
@@ -222,7 +221,7 @@ export function Landing() {
       </section>
       </main>
 
-      <footer><div className="wrap"><span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}><ReceiptMark size={22} />© 2026 Duely · AIM iMBA AI Tools final project</span><span>Demo data only. All client names and contacts are fictional.</span></div></footer>
+      <footer><div className="wrap"><span>© 2026 Duely · AIM iMBA AI Tools final project</span><span>Demo data only. All client names and contacts are fictional.</span></div></footer>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LoginPortal } from "@/components/login/LoginPortal";
-import { ReceiptMark } from "@/components/brand/ReceiptMark";
 import { customers } from "@/lib/demo-tables";
 import { agentName, COLLECTORS, DEFAULT_PERIOD } from "@/lib/session";
 
@@ -19,7 +18,6 @@ export default async function LoginPage() {
       </header>
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-12">
         <LoginPortal agents={agents} />
-        <p className="mt-10 flex items-center justify-center gap-2 text-xs font-semibold text-fg-subtle"><ReceiptMark size={18} />Demo data only. All client names and contacts are fictional.</p>
       </main>
     </div>
   );

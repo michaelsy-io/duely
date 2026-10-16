@@ -1,11 +1,10 @@
 import Link from "next/link";
 import clsx from "clsx";
-import { AlertTriangle, Banknote, CalendarCheck2, CalendarRange, Download, Inbox, NotebookPen, Phone, PhoneOff, Search, Upload, Wallet } from "lucide-react";
+import { AlertTriangle, Banknote, CalendarCheck2, CalendarDays, CalendarRange, Download, Inbox, NotebookPen, Phone, PhoneOff, Search, Upload, Wallet } from "lucide-react";
 import { openMonthDashboard } from "@/app/actions";
 import { PERIODS, type MonthSelection } from "@/lib/session";
 import { BUCKETS } from "@/lib/format";
 import { BalanceHero, Card, SectionTitle, StatPill } from "@/components/ui";
-import { ReceiptMark } from "@/components/brand/ReceiptMark";
 
 export type EmptyVariant = "today" | "clients" | "log" | "checks" | "cfo" | "approvals";
 
@@ -21,7 +20,7 @@ function EmptyBanner({ sel, canImport }: { sel: MonthSelection; canImport: boole
   const back = PERIODS[sel.dataPeriod];
   return (
     <section aria-labelledby="empty-month-title" className="anim-fade flex flex-col gap-4 rounded-card border border-dashed border-primary/40 bg-primary-soft/50 p-5 sm:flex-row sm:items-center sm:p-6">
-      <span className="grid size-12 shrink-0 place-items-center rounded-full bg-surface"><ReceiptMark size={28} /></span>
+      <span className="grid size-12 shrink-0 place-items-center rounded-full bg-surface text-primary"><CalendarDays className="size-6" aria-hidden="true" /></span>
       <div className="min-w-0 flex-1">
         <p className="eyebrow">{sel.label}</p>
         <h2 id="empty-month-title" className="font-display text-xl font-extrabold tracking-tight">No month-end data for {sel.label} yet</h2>

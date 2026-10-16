@@ -112,7 +112,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
                   <ListRow
                     key={inv.inv_no}
                     leading={<span className="grid size-10 place-items-center rounded-full bg-surface-3 text-primary-soft-fg"><FileText className="size-5" aria-hidden="true" /></span>}
-                    title={<span className="mono">{inv.inv_no}</span>}
+                    title={inv.inv_no}
                     sub={`Issued ${fmtDate(inv.invoice_date)} · due ${fmtDate(inv.due_date)}`}
                     trailing={peso(inv.balance)}
                     trailingSub={<span className={`num rounded-pill px-2 py-0.5 text-[11px] font-bold ${bucketTone(inv.days_overdue)}`}>{inv.days_overdue > 0 ? `${inv.days_overdue}d overdue` : "Current"}</span>}
@@ -176,7 +176,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
               <ul className="flex flex-col gap-2">
                 {pdcs.map((p) => (
                   <li key={p.check_no + p.check_date} className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-4 py-3 text-sm">
-                    <span><b className="block">{fmtDate(p.check_date, "EEE d MMM")}</b><span className="text-fg-muted"><span className="mono">{p.check_no}</span>{p.bank ? ` · ${p.bank}` : ""}</span>{p.flags.map((f) => <span key={f} className="mt-1 block text-xs font-bold text-bad-fg">{f}</span>)}</span>
+                    <span><b className="block">{fmtDate(p.check_date, "EEE d MMM")}</b><span className="text-fg-muted">{p.check_no}{p.bank ? ` · ${p.bank}` : ""}</span>{p.flags.map((f) => <span key={f} className="mt-1 block text-xs font-bold text-bad-fg">{f}</span>)}</span>
                     <span className="num font-extrabold">{peso(p.amount)}</span>
                   </li>
                 ))}
