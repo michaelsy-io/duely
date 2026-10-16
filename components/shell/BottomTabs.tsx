@@ -18,10 +18,11 @@ function TabIcon({ item, active }: { item: Pick<NavItem, "icon">; active: boolea
     <span className={clsx("relative grid h-7 w-12 place-items-center rounded-pill transition-colors", active && "text-nav-active-fg")}>
       {active && (
         <motion.span
-          layoutId="tabs-active"
           aria-hidden="true"
           className="absolute inset-0 rounded-pill bg-nav-active"
-          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 32 }}
         />
       )}
       <Icon className="relative size-5" aria-hidden="true" />

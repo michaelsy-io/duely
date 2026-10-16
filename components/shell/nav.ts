@@ -17,10 +17,10 @@ export type NavItem = (typeof NAV_ITEMS)[NavId] & { id: NavId };
 
 /** What each role sees, in order. The first item is the role's home. */
 const ROLE_NAV: Record<Role, NavId[]> = {
-  collector: ["today", "clients", "checks", "calendar", "ask"],
-  supervisor: ["today", "approvals", "clients", "checks", "calendar", "import", "ask"],
-  cfo: ["cfo", "approvals", "today", "clients", "checks", "calendar", "ask"],
-  admin: ["today", "approvals", "clients", "checks", "cfo", "calendar", "import", "ask"],
+  collector: ["today", "clients", "checks", "calendar"],
+  supervisor: ["today", "approvals", "clients", "checks", "calendar", "import"],
+  cfo: ["cfo", "approvals", "today", "clients", "checks", "calendar"],
+  admin: ["today", "approvals", "clients", "checks", "cfo", "calendar", "import"],
 };
 
 /** One line on what each role can do (header role menu). */
@@ -45,14 +45,12 @@ export const ROLE_BLOCKED: Record<Role, string[]> = {
 
 /**
  * Mobile bottom tabs: at most 5. Roles with 5 or fewer items get them all; others get their
- * first three, Ask, and a "More" tab holding the rest (so Ask and Calendar are always reachable).
+ * first four and a "More" tab holding the rest. Ask Duely is the floating button, not a tab.
  */
 export function tabsFor(role: Role): { tabs: NavItem[]; more: NavItem[] } {
   const all = navFor(role);
   if (all.length <= 5) return { tabs: all, more: [] };
-  const ask = all.find((n) => n.id === "ask");
-  const rest = all.filter((n) => n.id !== "ask");
-  return { tabs: [...rest.slice(0, 3), ...(ask ? [ask] : [])], more: rest.slice(3) };
+  return { tabs: all.slice(0, 4), more: all.slice(4) };
 }
 
 export function isActive(path: string, href: string) {
