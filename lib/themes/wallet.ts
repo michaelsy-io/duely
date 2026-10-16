@@ -33,7 +33,8 @@ export const wallet: Theme = {
     "shadow-float": "0 14px 34px -12px rgba(0,0,0,.7)",
     scrim: "rgba(0,0,0,.55)",
     "font-sans": "var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif",
-    "font-display": "var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif",
+    // Same display face as the landing page and the light theme: the brand type does not change with the theme.
+    "font-display": "var(--font-bricolage), 'Bricolage Grotesque', var(--font-jakarta), system-ui, sans-serif",
     density: "1",
     focus: "#AB9FF2",
     "nav-bg": "#17161C",

@@ -3,7 +3,7 @@
 // Public landing page, ported from the published Duely landing (scratchpad/landing). Styles: app/_landing/landing.css (scoped under .ld).
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { LogoMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 
 const ROWS: [string, string, string, string, string, string, string][] = [
   ["LE", "Lumen Eye Clinic", "Credit hold", "₱601,661", "65 days", "#FF8FB1", "#FF7A85"],
@@ -78,7 +78,7 @@ export function Landing() {
       <header className="nav">
         <div className="wrap">
           <div className="bar">
-            <a className="logo" href="#top"><LogoMark size={30} />duely</a>
+            <a className="logo" href="#top" aria-label="Duely home"><Logo /></a>
             <nav aria-label="Sections"><a href="#how">How it works</a><a href="#product">Product</a><a href="#teams">For teams</a></nav>
             <Link className="pill pill-ink" href="/login" style={{minHeight:"42px",padding:"0 18px"}}>Sign in</Link>
           </div>
