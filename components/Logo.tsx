@@ -1,12 +1,13 @@
 import clsx from "clsx";
 
-/** Duely mark: rounded purple square with a check-shaped "d" (a bowl plus a tick whose long stroke is the ascender). */
+/** Duely mark: the torn receipt (its torn edge ends in a speech tail), white paper with purple outline and lines. */
 export function LogoMark({ size = 30, className }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" className={clsx("shrink-0", className)} aria-hidden="true">
-      <rect width="32" height="32" rx="10" fill="#5B3FD0" />
-      <circle cx="13.2" cy="18.6" r="5.6" fill="none" stroke="#C9BDFF" strokeWidth="3" />
-      <path d="M10.4 18.4l2.9 2.9L22.6 7" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 64 64" className={clsx("shrink-0", className)} aria-hidden="true">
+      <path d="M14 6 H52 Q56 6 56 10 V46 L50 52 L44 46 L38 52 L32 46 L26 52 L20 46 L10 58 V10 Q10 6 14 6 Z" fill="#fff" stroke="#5B3FD0" strokeWidth="4" strokeLinejoin="round" />
+      <rect x="18" y="15" width="30" height="5" rx="2.5" fill="#5B3FD0" />
+      <rect x="18" y="25" width="20" height="5" rx="2.5" fill="#5B3FD0" />
+      <rect x="18" y="35" width="12" height="5" rx="2.5" fill="#5B3FD0" />
     </svg>
   );
 }
