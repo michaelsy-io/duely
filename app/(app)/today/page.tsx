@@ -1,91 +1,155 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { EmptyMonth } from "@/components/month/EmptyMonth";
-import { AlertTriangle, CalendarCheck2, MessageCircle, NotebookPen, Phone, PhoneOff, Wallet } from "lucide-react";
+import { AlertTriangle, Phone, PhoneOff, Send, ShieldAlert, Wallet } from "lucide-react";
 import { getCurrentResult } from "@/lib/data";
 import { getSession, PERIODS, getMonthSelection } from "@/lib/session";
 import { customers } from "@/lib/demo-tables";
+import { listDrafts } from "@/lib/db/drafts";
 import { clientName, clientProfile } from "@/lib/clients";
-import { bucketTone, peso } from "@/lib/format";
-import { has, nextStep, rowsFor, STEP_TONE, sum, type NextStep } from "@/lib/view";
-import { ActionButton, Avatar, BalanceHero, Chip, ListRow, PriorityChip, SectionTitle, StatPill } from "@/components/ui";
+import { peso } from "@/lib/format";
+import { has, nextStep, rowsFor, sum, type NextStep } from "@/lib/view";
+import type { FollowUpRow } from "@/lib/engine/types";
+import { StatPill } from "@/components/ui";
 import { AnimatedList } from "@/components/motion/AnimatedList";
 import { CountUp } from "@/components/motion/CountUp";
 import { PressLink } from "@/components/motion/Press";
+import { TodayStrip } from "@/components/today/TodayStrip";
+import { DecisionStrip } from "@/components/today/DecisionStrip";
+import { FollowUpItem, type RowAction } from "@/components/today/FollowUpItem";
 
 export const metadata: Metadata = { title: "Today" };
 
-const FILTERS: { slug: string; label: string; step?: NextStep }[] = [
+type Filter = { slug: string; label: string; match?: (r: FollowUpRow, step: NextStep) => boolean };
+
+// The stat tiles and the exact filters share these tests, so a tile's number always equals the list it opens.
+const isNoContact = (r: FollowUpRow) => has(r, /no contact/i);
+const isBroken = (r: FollowUpRow) => has(r, /broke a promise/i);
+
+const STEP_FILTERS: Filter[] = [
   { slug: "all", label: "All" },
-  { slug: "call", label: "Call now", step: "Call now" },
-  { slug: "escalate", label: "Escalate", step: "Escalate" },
-  { slug: "remind", label: "Send reminder", step: "Send reminder" },
-  { slug: "deposit", label: "Deposit check", step: "Deposit check" },
+  { slug: "call", label: "Call now", match: (_, s) => s === "Call now" },
+  { slug: "escalate", label: "Escalate", match: (_, s) => s === "Escalate" },
+  { slug: "remind", label: "Send reminder", match: (_, s) => s === "Send reminder" },
+  { slug: "deposit", label: "Deposit check", match: (_, s) => s === "Deposit check" },
 ];
+const REASON_FILTERS: Filter[] = [
+  { slug: "nocontact", label: "No contact 14+ days", match: (r) => isNoContact(r) },
+  { slug: "broken", label: "Broken promise", match: (r) => isBroken(r) },
+];
+const FILTERS = [...STEP_FILTERS, ...REASON_FILTERS];
+
+const STEP_ICON: Record<NextStep, ReactNode> = {
+  "Call now": <Phone aria-hidden="true" />,
+  Escalate: <ShieldAlert aria-hidden="true" />,
+  "Send reminder": <Send aria-hidden="true" />,
+  "Deposit check": <Wallet aria-hidden="true" />,
+};
+
+/** One action per row, matching its next step. Only the collecting agent gets a phone link. */
+function actionFor(r: FollowUpRow, step: NextStep, isCollector: boolean, canDecide: boolean): RowAction {
+  const client = `/clients/${r.client_code}`;
+  const icon = STEP_ICON[step];
+  switch (step) {
+    case "Call now": {
+      const phone = isCollector ? clientProfile(r.client_code)?.phone : undefined;
+      return phone
+        ? { label: step, icon, href: `tel:${phone.replace(/\s/g, "")}`, external: true, title: `Call ${phone}` }
+        : { label: step, icon, href: client, title: "Next step is a call. Open the client page." };
+    }
+    case "Escalate":
+      return canDecide
+        ? { label: step, icon, href: "/approvals", title: "Decide the hold on the Approvals page" }
+        : { label: step, icon, href: client, title: "Needs a hold decision by a supervisor. Open the client page." };
+    case "Send reminder":
+      return { label: step, icon, href: client, title: "Draft a reminder on the client page. A supervisor approves it before it is sent." };
+    case "Deposit check":
+      return { label: step, icon, href: "/checks", title: "Checks on hand cover the overdue amount. See the checks to deposit." };
+  }
+}
+
+async function waitingDrafts(period: string): Promise<number | null> {
+  try {
+    const drafts = await listDrafts(period);
+    return drafts.filter((d) => d.status === "pending" || d.status === "needs_edit").length;
+  } catch {
+    return null;
+  }
+}
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<{ f?: string }> }) {
   const sel = await getMonthSelection();
   if (!sel.period) return <EmptyMonth variant="today" sel={sel} />;
   const [{ period, result }, session, sp] = await Promise.all([getCurrentResult(), getSession(), searchParams]);
-  const cust = await customers(period);
+  const isCollector = session.role === "collector";
+  const canDecide = session.role === "supervisor" || session.role === "admin";
+  const [cust, drafts] = await Promise.all([customers(period), canDecide ? waitingDrafts(period) : Promise.resolve(null)]);
   const collectorOf = Object.fromEntries(cust.map((c) => [c.client_code, c.collector]));
 
   const rows = rowsFor(result, session.collector);
   // Everyone without a collector filter sees the same company-wide figure as the CFO page.
   const totalOverdue = session.collector ? sum(rows, (r) => r.overdue) : result.kpis.overdueExclDisputes;
   const covered = sum(rows, (r) => Math.min(r.overdue, r.pdcCover + (r.openPromise?.amount ?? 0)));
-  const noContact = rows.filter((r) => has(r, /no contact/i)).length;
-  const broken = rows.filter((r) => has(r, /broke a promise/i)).length;
   const myPdcs = result.pdcs.filter((p) => p.week === 1 && (!session.collector || collectorOf[p.client_code] === session.collector));
   const pdcWeek = sum(myPdcs, (p) => p.amount);
 
-  const withStep = rows.map((r) => ({ r, step: nextStep(r, result) }));
+  // Rank shown = position on this person's list (1..N); company-wide rank stays as secondary text for collectors.
+  const items = rows.map((r, i) => ({ r, step: nextStep(r, result), rank: session.collector ? i + 1 : r.rank }));
   const filter = FILTERS.find((f) => f.slug === sp.f) ?? FILTERS[0];
-  const shown = filter.step ? withStep.filter((x) => x.step === filter.step) : withStep;
-  const counts = Object.fromEntries(FILTERS.map((f) => [f.slug, f.step ? withStep.filter((x) => x.step === f.step).length : withStep.length]));
+  const shown = filter.match ? items.filter((x) => filter.match!(x.r, x.step)) : items;
+  const counts = Object.fromEntries(FILTERS.map((f) => [f.slug, f.match ? items.filter((x) => f.match!(x.r, x.step)).length : items.length]));
+  const noContact = counts.nocontact;
+  const broken = counts.broken;
 
   const top = rows[0];
-  const topPhone = top ? clientProfile(top.client_code)?.phone : undefined;
+  const topPhone = isCollector && top ? clientProfile(top.client_code)?.phone : undefined;
   const who = session.collector ? "your accounts" : "all accounts";
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
-      <BalanceHero
-        label={<>Overdue in {who} · as of {PERIODS[period].label}</>}
-        amount={<CountUp value={totalOverdue} text={peso(totalOverdue)} format="peso" />}
-        sub={<>{rows.length} clients to follow up{top && <> · start with <Link className="font-bold text-primary underline-offset-2 hover:underline" href={`/clients/${top.client_code}`}>{clientName(top.client_code)}</Link></>}</>}
-        progress={{ value: totalOverdue ? covered / totalOverdue : 0, label: <>{peso(covered)} already covered by checks on hand and promises · {totalOverdue ? Math.round((covered / totalOverdue) * 100) : 0}% of overdue</> }}
-        actions={
-          <>
-            <ActionButton icon={<Phone />} label="Call next" variant="primary" href={topPhone ? `tel:${topPhone.replace(/\s/g, "")}` : "/today"} external={!!topPhone} />
-            <ActionButton icon={<NotebookPen />} label="Log contact" href={top ? `/clients/${top.client_code}#log` : "/clients"} />
-            <ActionButton icon={<CalendarCheck2 />} label="Checks" href="/checks" />
-            <ActionButton icon={<MessageCircle />} label="Ask" onClickId="ask" variant="accent" />
-          </>
-        }
+    <div className="flex flex-col gap-4 sm:gap-5">
+      <header>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Today&apos;s follow-ups</h1>
+        <p className="mt-1 text-sm text-fg-muted">
+          <span className="num">{rows.length}</span> {rows.length === 1 ? "client" : "clients"} to follow up · ranked by the rules engine · as of {PERIODS[period].label}
+        </p>
+      </header>
+
+      <TodayStrip
+        who={who}
+        totalOverdue={totalOverdue}
+        covered={covered}
+        first={top && { code: top.client_code, name: clientName(top.client_code), amount: top.overdue }}
+        callHref={topPhone ? `tel:${topPhone.replace(/\s/g, "")}` : undefined}
+        logHref={isCollector && top ? `/clients/${top.client_code}#log` : undefined}
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatPill icon={<PhoneOff />} value={<CountUp value={noContact} text={String(noContact)} format="int" />} label="No contact in 14+ days" tone="warn" href="/today?f=call" />
-        <StatPill icon={<Wallet />} value={<CountUp value={pdcWeek} text={peso(pdcWeek)} format="peso" />} label={`Checks to deposit this week (${myPdcs.length})`} tone="good" href="/checks" />
-        <StatPill icon={<AlertTriangle />} value={<CountUp value={broken} text={String(broken)} format="int" />} label="Broken promises (30 days)" tone="bad" href="/today?f=escalate" />
+      {session.role !== "collector" && (
+        <DecisionStrip role={session.role} drafts={drafts} escalations={result.escalations.length} />
+      )}
+
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <StatPill dense current={filter.slug === "nocontact"} icon={<PhoneOff />} value={<CountUp value={noContact} text={String(noContact)} format="int" />} label="No contact in 14+ days" tone="warn" href="/today?f=nocontact" />
+        <StatPill dense icon={<Wallet />} value={<CountUp value={pdcWeek} text={peso(pdcWeek)} format="peso" />} label={`Checks to deposit this week (${myPdcs.length})`} tone="good" href="/checks" />
+        <StatPill dense current={filter.slug === "broken"} icon={<AlertTriangle />} value={<CountUp value={broken} text={String(broken)} format="int" />} label="Broken promises (30 days)" tone="bad" href="/today?f=broken" />
       </div>
 
       <section aria-labelledby="list-title">
-        <SectionTitle title={<span id="list-title">Today&apos;s follow-up list</span>} sub="Ranked by the rules engine. Highest priority first." />
-        <nav aria-label="Filter list" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-          {FILTERS.map((f) => {
+        <h2 id="list-title" className="sr-only">Follow-up list</h2>
+        <nav aria-label="Filter list" className="-mx-4 mb-3 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          {FILTERS.map((f, i) => {
             const active = f.slug === filter.slug;
             return (
-              <PressLink
-                key={f.slug}
-                href={f.slug === "all" ? "/today" : `/today?f=${f.slug}`}
-                aria-current={active ? "true" : undefined}
-                className={`flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-pill px-4 text-sm font-bold transition-colors ${active ? "bg-fg text-bg" : "border border-border bg-surface text-fg hover:bg-surface-2"}`}
-              >
-                {f.label}
-                <span className={`num rounded-pill px-1.5 text-xs ${active ? "bg-bg/20" : "bg-surface-3 text-fg-muted"}`}>{counts[f.slug]}</span>
-              </PressLink>
+              <span key={f.slug} className="contents">
+                {i === STEP_FILTERS.length && <span aria-hidden="true" className="mx-1 h-6 w-px shrink-0 bg-border" />}
+                <PressLink
+                  href={f.slug === "all" ? "/today" : `/today?f=${f.slug}`}
+                  aria-current={active ? "true" : undefined}
+                  className={`flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-pill px-4 text-sm font-bold transition-colors ${active ? "bg-fg text-bg" : "border border-border bg-surface text-fg hover:bg-surface-2"}`}
+                >
+                  {f.label}
+                  <span className={`num rounded-pill px-1.5 text-xs ${active ? "bg-bg/20" : "bg-surface-3 text-fg-muted"}`}>{counts[f.slug]}</span>
+                </PressLink>
+              </span>
             );
           })}
         </nav>
@@ -97,42 +161,22 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           </div>
         ) : (
           <AnimatedList className="list-group" label="Follow-up list">
-            {shown.map(({ r, step }) => (
-              <ListRow
+            {shown.map(({ r, step, rank }) => (
+              <FollowUpItem
                 key={r.client_code}
-                href={`/clients/${r.client_code}`}
-                leading={
-                  <span className="relative">
-                    <Avatar code={r.client_code} />
-                    <span className="num absolute -bottom-1 -left-1 grid size-5 place-items-center rounded-full border-2 border-surface bg-fg text-[10px] font-bold text-bg">{r.rank}</span>
-                  </span>
-                }
-                title={clientName(r.client_code)}
-                sub={<>{r.client_code} · {r.segment}{!session.collector && <> · {r.collector}</>}</>}
-                meta={
-                  <>
-                    <Chip tone={STEP_TONE[step]}>{step}</Chip>
-                    <span className="line-clamp-2 w-full text-xs text-fg-muted sm:line-clamp-1 sm:w-auto sm:min-w-0 sm:flex-1">{r.reasonText}</span>
-                  </>
-                }
-                trailing={peso(r.overdue)}
-                trailingSub={
-                  <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-1.5">
-                    <span
-                      className={`num whitespace-nowrap rounded-pill px-2 py-0.5 text-[11px] font-bold ${bucketTone(r.oldestDays)}`}
-                      title={`Oldest unpaid invoice is ${r.oldestDays} days past due`}
-                      aria-label={`Oldest unpaid invoice is ${r.oldestDays} days past due`}
-                    >
-                      {r.oldestDays}d overdue
-                    </span>
-                    <PriorityChip score={r.score} />
-                  </span>
-                }
+                row={r}
+                name={clientName(r.client_code)}
+                rank={rank}
+                overallRank={session.collector ? r.rank : undefined}
+                showCollector={!session.collector}
+                action={actionFor(r, step, isCollector, canDecide)}
               />
             ))}
           </AnimatedList>
         )}
-        <p className="mt-3 text-xs text-fg-subtle">Priority = points from the rules engine; higher means call sooner. &ldquo;Overdue&rdquo; chip = days the oldest unpaid invoice is past due.</p>
+        <p className="mt-3 text-xs text-fg-muted">
+          Each line shows the two biggest reasons, in priority points from the rules engine. Higher means call sooner. Open Details for the full breakdown.
+        </p>
       </section>
     </div>
   );
