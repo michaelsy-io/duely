@@ -6,13 +6,13 @@ import Link from "next/link";
 import { LogoMark } from "@/components/Logo";
 
 const ROWS: [string, string, string, string, string, string, string][] = [
-  ["LE", "Lumen Eye Clinic", "Escalate: credit hold", "₱601,661", "65 days", "#FF8FB1", "#FF7A85"],
-  ["MH", "Mercy Hills Hospital", "Call now · broke a promise", "₱1,071,287", "14 days", "#AB9FF2", "#FFC960"],
-  ["NM", "Northpoint Medical Center", "Call now · no contact 14+ days", "₱1,317,250", "16 days", "#9FD8FF", "#FFC960"],
-  ["SL", "San Lorenzo Medical Center", "Send reminder", "₱1,703,544", "27 days", "#7EE2B8", "#FFC960"],
-  ["SA", "St. Agnes General Hospital", "Send reminder", "₱517,170", "9 days", "#FFB38A", "#FFE08A"],
-  ["BO", "Brightsight Optical", "Send reminder", "₱119,950", "9 days", "#E2DFFE", "#FFE08A"],
-  ["IO", "Iris Optical Gallery", "Deposit check 8 Sep", "₱289,060", "covered", "#9FD8FF", "#4ADE9A"],
+  ["LE", "Lumen Eye Clinic", "Credit hold", "₱601,661", "65 days", "#FF8FB1", "#FF7A85"],
+  ["MH", "Mercy Hills Hospital", "Visit · broke a promise", "₱1,071,287", "14 days", "#AB9FF2", "#FFC960"],
+  ["NM", "Northpoint Medical Center", "Remind and call · no contact 14+ days", "₱1,317,250", "16 days", "#9FD8FF", "#FFC960"],
+  ["SL", "San Lorenzo Medical Center", "Remind and call", "₱1,703,544", "27 days", "#7EE2B8", "#FFC960"],
+  ["SA", "St. Agnes General Hospital", "Remind and call", "₱517,170", "9 days", "#FFB38A", "#FFE08A"],
+  ["BO", "Brightsight Optical", "Remind and call", "₱119,950", "9 days", "#E2DFFE", "#FFE08A"],
+  ["IO", "Iris Optical Gallery", "Remind and call · checks cover it", "₱289,060", "covered", "#9FD8FF", "#4ADE9A"],
 ];
 
 export function Landing() {

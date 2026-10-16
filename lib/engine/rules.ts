@@ -45,6 +45,8 @@ export const SCORE = {
 export const ESCALATION = {
   creditHoldDays: 90,
   visitDays: 60,
+  /** 31-60 days overdue: call and ask for a payment date or a PDC (1-30: reminder message and a call). */
+  callDays: 30,
   brokenPromiseWindowDays: 90,
   brokenPromiseOutcomePrefix: "Promise missed",
   creditHoldBrokenPromises: 2,

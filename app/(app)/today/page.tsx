@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { EmptyMonth } from "@/components/month/EmptyMonth";
-import { AlertTriangle, Phone, PhoneOff, Send, ShieldAlert, Wallet } from "lucide-react";
+import { AlertTriangle, Car, Phone, PhoneOff, Send, ShieldAlert, Wallet } from "lucide-react";
 import { getCurrentResult } from "@/lib/data";
 import { getSession, PERIODS, getMonthSelection } from "@/lib/session";
 import { customers } from "@/lib/demo-tables";
 import { listDrafts } from "@/lib/db/drafts";
 import { clientName, clientProfile } from "@/lib/clients";
 import { peso } from "@/lib/format";
-import { has, nextStep, rowsFor, sum, type NextStep } from "@/lib/view";
+import { has, nextStep, rowsFor, STEP_RULE, sum, type NextStep } from "@/lib/view";
 import type { FollowUpRow } from "@/lib/engine/types";
 import { StatPill } from "@/components/ui";
 import { AnimatedList } from "@/components/motion/AnimatedList";
@@ -28,10 +28,10 @@ const isBroken = (r: FollowUpRow) => has(r, /broke a promise/i);
 
 const STEP_FILTERS: Filter[] = [
   { slug: "all", label: "All" },
-  { slug: "call", label: "Call now", match: (_, s) => s === "Call now" },
-  { slug: "escalate", label: "Escalate", match: (_, s) => s === "Escalate" },
-  { slug: "remind", label: "Send reminder", match: (_, s) => s === "Send reminder" },
-  { slug: "deposit", label: "Deposit check", match: (_, s) => s === "Deposit check" },
+  { slug: "hold", label: "Credit hold", match: (_, s) => s === "Credit hold" },
+  { slug: "visit", label: "Visit", match: (_, s) => s === "Visit" },
+  { slug: "call", label: "Call for a date", match: (_, s) => s === "Call for a date" },
+  { slug: "remind", label: "Remind and call", match: (_, s) => s === "Remind and call" },
 ];
 const REASON_FILTERS: Filter[] = [
   { slug: "nocontact", label: "No contact 14+ days", match: (r) => isNoContact(r) },
@@ -40,31 +40,31 @@ const REASON_FILTERS: Filter[] = [
 const FILTERS = [...STEP_FILTERS, ...REASON_FILTERS];
 
 const STEP_ICON: Record<NextStep, ReactNode> = {
-  "Call now": <Phone aria-hidden="true" />,
-  Escalate: <ShieldAlert aria-hidden="true" />,
-  "Send reminder": <Send aria-hidden="true" />,
-  "Deposit check": <Wallet aria-hidden="true" />,
+  "Credit hold": <ShieldAlert aria-hidden="true" />,
+  Visit: <Car aria-hidden="true" />,
+  "Call for a date": <Phone aria-hidden="true" />,
+  "Remind and call": <Send aria-hidden="true" />,
 };
 
-/** One action per row, matching its next step. Only the collecting agent gets a phone link. */
+/** One action per row: the client's rung on the escalation ladder. Only the collecting agent gets a phone link. */
 function actionFor(r: FollowUpRow, step: NextStep, isCollector: boolean, canDecide: boolean): RowAction {
   const client = `/clients/${r.client_code}`;
   const icon = STEP_ICON[step];
   switch (step) {
-    case "Call now": {
+    case "Credit hold":
+      return canDecide
+        ? { label: step, icon, href: "/approvals", title: `${STEP_RULE[step]} Decide it on the Approvals page.` }
+        : { label: step, icon, href: client, title: `${STEP_RULE[step]} Open the client page.` };
+    case "Visit":
+      return { label: step, icon, href: client, title: `${STEP_RULE[step]} Open the client page.` };
+    case "Call for a date": {
       const phone = isCollector ? clientProfile(r.client_code)?.phone : undefined;
       return phone
-        ? { label: step, icon, href: `tel:${phone.replace(/\s/g, "")}`, external: true, title: `Call ${phone}` }
-        : { label: step, icon, href: client, title: "Next step is a call. Open the client page." };
+        ? { label: step, icon, href: `tel:${phone.replace(/\s/g, "")}`, external: true, title: `${STEP_RULE[step]} Call ${phone}.` }
+        : { label: step, icon, href: client, title: `${STEP_RULE[step]} Open the client page.` };
     }
-    case "Escalate":
-      return canDecide
-        ? { label: step, icon, href: "/approvals", title: "Decide the hold on the Approvals page" }
-        : { label: step, icon, href: client, title: "Needs a hold decision by a supervisor. Open the client page." };
-    case "Send reminder":
-      return { label: step, icon, href: client, title: "Draft a reminder on the client page. A supervisor approves it before it is sent." };
-    case "Deposit check":
-      return { label: step, icon, href: "/checks", title: "Checks on hand cover the overdue amount. See the checks to deposit." };
+    case "Remind and call":
+      return { label: step, icon, href: client, title: `${STEP_RULE[step]} Draft the reminder on the client page; a supervisor approves it before it is sent.` };
   }
 }
 
