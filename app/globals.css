@@ -115,14 +115,17 @@ html[data-list="cards"] .list-group > * + * { border-top: 1px solid var(--border
 
 .app-sidebar { display: none; }
 .app-bottomtabs { display: flex; }
-.app-main { padding-bottom: 6.5rem; }
+.app-main { padding-bottom: 11rem; } /* room for the tab bar plus the floating Ask button */
+.chat-fab { bottom: calc(5rem + env(safe-area-inset-bottom)); }
 @media (min-width: 1024px) {
   .app-sidebar { display: flex; }
   .app-bottomtabs { display: none; }
-  .app-main { padding-bottom: 3rem; }
+  .app-main { padding-bottom: 7rem; }
+  .chat-fab { bottom: 1.5rem; }
+  html[data-nav="bottom-tabs"] .chat-fab { bottom: calc(5rem + env(safe-area-inset-bottom)); }
   html[data-nav="bottom-tabs"] .app-sidebar { display: none; }
   html[data-nav="bottom-tabs"] .app-bottomtabs { display: flex; }
-  html[data-nav="bottom-tabs"] .app-main { padding-bottom: 6.5rem; }
+  html[data-nav="bottom-tabs"] .app-main { padding-bottom: 11rem; }
   html[data-nav="bottom-tabs"] .app-content { margin-left: 0; }
 }
 

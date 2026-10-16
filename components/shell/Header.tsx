@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { usePathname } from "next/navigation";
-import { Bell, CalendarDays, Check, ChevronDown, LogOut, MessageCircle, Palette, UserRound } from "lucide-react";
+import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette, UserRound } from "lucide-react";
 import { setPeriod, setTheme, signOut, switchRole } from "@/app/actions";
 import { LogoMark } from "@/components/Logo";
 import type { Role } from "@/lib/session";
@@ -58,7 +57,6 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
   const otherMonth = months.find((m) => m.value === selected && !periods.some((p) => p.id === selected));
   const menuRef = useOutside<HTMLDivElement>(menu, () => setMenu(false));
   const bellRef = useOutside<HTMLDivElement>(bell, () => setBell(false));
-  const path = usePathname();
 
   return (
     <header className={clsx("sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md transition-opacity", pending && "opacity-70")}>
@@ -122,12 +120,6 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
             </div>
           )}
         </div>
-
-        {!path.startsWith("/ask") && (
-          <button type="button" data-action="ask" className="btn btn-secondary hidden lg:inline-flex">
-            <MessageCircle className="size-4" aria-hidden="true" /> Ask Duely
-          </button>
-        )}
 
         <div className="relative" ref={bellRef}>
           <button type="button" onClick={() => setBell((v) => !v)} aria-expanded={bell} aria-label={`Notifications (${notices.length})`} className="relative grid size-11 place-items-center rounded-full bg-surface hover:bg-surface-2 border border-border">
