@@ -15,8 +15,12 @@ export const ROLES: Record<Role, { label: string; person: string; home: string }
   admin: { label: "Admin", person: "Admin", home: "/today" },
 };
 
-/** Month the app opens on when no `duely_period` cookie is set: the latest books (30 Sep 2026), matching the landing page. */
-export const DEFAULT_PERIOD: Period = "P2";
+/** Month the app opens on when no month is picked this visit: always the latest books (now 30 Sep 2026). */
+export const DEFAULT_PERIOD: Period = (Object.keys(PERIODS) as Period[]).reduce((a, b) => (PERIODS[b].asOf > PERIODS[a].asOf ? b : a));
+
+/** Cookie holding the month picked this visit. Session-only, so every new visit opens on the latest month.
+ * (Renamed from `duely_period`, which was kept for a year and pinned old browsers to 31 Aug.) */
+export const PERIOD_COOKIE = "duely_month";
 
 export function isPeriod(v: unknown): v is Period {
   return v === "P1" || v === "P2";
@@ -26,7 +30,7 @@ export function isRole(v: unknown): v is Role {
 }
 
 // ---------- Months ----------
-// The `duely_period` cookie holds either a data period ("P1" / "P2") or a month key ("2026-10")
+// The `duely_month` cookie holds either a data period ("P1" / "P2") or a month key ("2026-10")
 // for a month whose month-end files have not been imported yet. Pages render an empty dashboard
 // for such months; the chat, API routes and anything that needs engine numbers fall back to the
 // nearest data period (see dataPeriodForMonth).
@@ -111,9 +115,9 @@ export function parsePeriodValue(v: unknown): Period | MonthKey | null {
   return null;
 }
 
-/** The month the user is looking at, from the `duely_period` cookie (default DEFAULT_PERIOD, 30 Sep 2026). */
+/** The month the user is looking at, from the `duely_month` cookie (default DEFAULT_PERIOD, 30 Sep 2026). */
 export async function getMonthSelection(): Promise<MonthSelection> {
-  const v = parsePeriodValue((await cookies()).get("duely_period")?.value) ?? DEFAULT_PERIOD;
+  const v = parsePeriodValue((await cookies()).get(PERIOD_COOKIE)?.value) ?? DEFAULT_PERIOD;
   return selectionFor(isPeriod(v) ? PERIODS[v].month : v);
 }
 
