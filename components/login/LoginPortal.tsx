@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { motion, type Variants } from "motion/react";
-import { ArrowRight, Briefcase, Loader2, Phone, ShieldCheck, Upload } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { signInAs } from "@/app/actions";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { PersonAvatar, avatarIdFor } from "@/components/brand/PersonAvatar";
 
 const ROLES = [
-    { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg", start: true },
-  { id: "cfo", title: "CFO", body: "One page: DSO, aging, cash coming in, bad debt vs allowance.", icon: Briefcase, tone: "bg-good-soft text-good-fg" },
-  { id: "admin", title: "Admin", body: "Upload exports, match columns, settle reconciliation questions.", icon: Upload, tone: "bg-warn-soft text-warn-fg" },
-];
+  { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", start: true },
+  { id: "cfo", title: "CFO", body: "One page: DSO, aging, cash coming in, bad debt vs allowance." },
+  { id: "admin", title: "Admin", body: "Upload exports, match columns, settle reconciliation questions." },
+] as const;
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const rise: Variants = {
@@ -54,7 +55,8 @@ export function LoginPortal({ agents }: { agents: AgentChoice[] }) {
 function RoleCards() {
   const { pending } = useFormStatus();
   const [picked, setPicked] = useState<string | null>(null);
-  return ROLES.map(({ id, title, body, icon: Icon, tone, start }, i) => {
+  return ROLES.map(({ id, title, body, ...rest }, i) => {
+    const start = "start" in rest && rest.start;
     const busy = pending && picked === id;
     return (
       <motion.button
@@ -74,11 +76,11 @@ function RoleCards() {
         className={`group card flex items-center gap-4 p-5 text-left transition-[border-color,box-shadow,opacity] hover:border-primary hover:shadow-float sm:p-6 ${start ? "border-primary" : ""} ${pending && !busy ? "opacity-50" : ""}`}
       >
         <motion.span
-          className={`grid size-14 shrink-0 place-items-center rounded-full ${tone}`}
+          className="grid size-14 shrink-0 place-items-center rounded-full"
           whileHover={{ rotate: -6, scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 18 }}
         >
-          <Icon className="size-6" aria-hidden="true" />
+          <PersonAvatar id={id} size={56} />
         </motion.span>
         <span className="min-w-0 flex-1">
           {start && (
@@ -111,7 +113,12 @@ function AgentCard({ agents }: { agents: AgentChoice[] }) {
   return (
     <motion.div variants={rise} initial="hidden" animate="show" custom={3} className="card col-span-full flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-6">
       <span className="flex min-w-0 flex-1 items-center gap-4">
-        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary text-primary-fg"><Phone className="size-6" aria-hidden="true" /></span>
+        {/* The three agents as a little huddle in the same 56px slot the other cards use for their avatar. */}
+        <span className="relative size-14 shrink-0" aria-hidden="true">
+          <PersonAvatar id="collector-1" size={30} className="absolute left-0 top-[24px] rounded-full ring-2 ring-surface" />
+          <PersonAvatar id="collector-3" size={30} className="absolute right-0 top-[24px] rounded-full ring-2 ring-surface" />
+          <PersonAvatar id="collector-2" size={30} className="absolute left-[13px] top-0 rounded-full ring-2 ring-surface" />
+        </span>
         <span className="min-w-0">
           <span className="block font-display text-2xl font-extrabold tracking-tight">Collecting Agent</span>
           <span className="mt-0.5 block text-sm text-fg-muted">Your ranked call list, checks to deposit and one-tap logging. Pick an agent to see only their clients.</span>
@@ -132,10 +139,13 @@ function AgentCard({ agents }: { agents: AgentChoice[] }) {
               aria-label={`Sign in as ${a.label}, ${a.clients} clients`}
               whileHover={pending ? undefined : { y: -2 }}
               whileTap={pending ? undefined : { scale: 0.96 }}
-              className={`flex min-h-[64px] flex-col items-center justify-center rounded-2xl border border-border bg-surface-2 px-4 py-2 transition-colors hover:border-primary hover:bg-primary-soft ${pending && !busy ? "opacity-50" : ""}`}
+              className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border border-border bg-surface-2 px-3 py-2 transition-colors hover:border-primary hover:bg-primary-soft sm:flex-row sm:gap-2.5 sm:px-4 ${pending && !busy ? "opacity-50" : ""}`}
             >
-              {busy ? <Loader2 className="size-5 animate-spin text-primary" aria-hidden="true" /> : <span className="font-display text-lg font-extrabold">Agent {a.label.replace(/\D/g, "")}</span>}
-              <span className="text-xs text-fg-muted">{a.clients} clients</span>
+              {busy ? <Loader2 className="size-7 animate-spin text-primary" aria-hidden="true" /> : <PersonAvatar id={avatarIdFor(a.id)} size={32} className="shrink-0" />}
+              <span className="flex flex-col items-center sm:items-start">
+                <span className="font-display text-lg font-extrabold leading-tight">Agent {a.label.replace(/\D/g, "")}</span>
+                <span className="text-xs text-fg-muted">{a.clients} clients</span>
+              </span>
             </motion.button>
           );
         })}

@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette, UserRound } from "lucide-react";
+import { Bell, CalendarDays, Check, ChevronDown, LogOut, Palette } from "lucide-react";
 import { setPeriod, setTheme, signOut, switchRole } from "@/app/actions";
 import { Logo } from "@/components/Logo";
+import { PersonAvatar, avatarIdFor, type AvatarId } from "@/components/brand/PersonAvatar";
 import type { Role } from "@/lib/session";
 import { ROLE_BLURB } from "./nav";
 
@@ -29,7 +30,7 @@ interface Props {
   notices: Notice[];
 }
 
-const ROLE_OPTIONS: { id: string; role: Role; label: string }[] = [
+const ROLE_OPTIONS: { id: AvatarId; role: Role; label: string }[] = [
   { id: "collector-1", role: "collector", label: "Collecting Agent 1" },
   { id: "collector-2", role: "collector", label: "Collecting Agent 2" },
   { id: "collector-3", role: "collector", label: "Collecting Agent 3" },
@@ -148,7 +149,7 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
 
         <div className="relative" ref={menuRef}>
           <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-haspopup="menu" aria-label={`Account: ${role}`} className="flex min-h-[44px] items-center gap-2 rounded-pill border border-border bg-surface px-1.5 hover:bg-surface-2 sm:pr-3">
-            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-fg"><UserRound className="size-4" aria-hidden="true" /></span>
+            <PersonAvatar id={avatarIdFor(roleId)} size={32} className="shrink-0" />
             <span className="hidden text-sm font-bold sm:inline">{role}</span>
             <ChevronDown className="hidden size-4 text-fg-muted sm:block" aria-hidden="true" />
           </button>
@@ -157,7 +158,8 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
               <p className="px-3 pb-1 pt-2 eyebrow">View as</p>
               {ROLE_OPTIONS.map((r) => (
                 <button key={r.id} role="menuitemradio" aria-checked={roleId === r.id} type="button" onClick={() => start(async () => { await switchRole(r.id); setMenu(false); })} className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left hover:bg-surface-2">
-                  <span className="min-w-0">
+                  <PersonAvatar id={r.id} size={28} className="shrink-0" />
+                  <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold">{r.label}</span>
                     <span className="block text-xs text-fg-muted">{ROLE_BLURB[r.role]}</span>
                   </span>
