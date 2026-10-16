@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, Sparkles, X } from "lucide-react";
+import { AlertCircle, Check, PenLine, X } from "lucide-react";
 import clsx from "clsx";
 
 interface DraftOut {
@@ -53,7 +53,7 @@ export function DraftReminder({ code, period }: { code: string; period: string }
             ))}
           </div>
           <button type="button" onClick={run} disabled={state === "loading"} className="btn btn-primary">
-            <Sparkles className="size-4" aria-hidden="true" />
+            <PenLine className="size-4" aria-hidden="true" />
             {state === "loading" ? "Drafting…" : state === "done" ? "Redraft" : "Draft a reminder"}
           </button>
         </div>

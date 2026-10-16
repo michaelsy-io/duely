@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import clsx from "clsx";
-import { ArrowUp, RotateCcw, Sparkles, Square, Wrench } from "lucide-react";
+import { ArrowUp, RotateCcw, MessageCircleQuestion, Square, Wrench } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { LogoMark } from "@/components/Logo";
 import { Markdownish } from "./Markdownish";
@@ -103,7 +103,7 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
             <div className="mt-6 flex w-full max-w-md flex-col gap-2">
               {SUGGESTIONS.map((s) => (
                 <button key={s} type="button" onClick={() => send(s)} className="flex min-h-[48px] items-center gap-2 rounded-pill border border-border bg-surface px-4 text-left text-sm font-semibold hover:bg-surface-2">
-                  <Sparkles className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                  <MessageCircleQuestion className="size-4 shrink-0 text-primary" aria-hidden="true" />
                   {s}
                 </button>
               ))}
@@ -156,7 +156,7 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
       )}
 
       <form onSubmit={onSubmit} className="border-t border-border bg-surface p-3">
-        <div className="flex items-end gap-2 rounded-[24px] border border-border bg-bg p-1.5 pl-4 focus-within:border-primary">
+        <div className="flex items-end gap-2 rounded-[24px] border border-border bg-bg p-1.5 pl-4 transition-shadow focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-primary-soft)]">
           <label htmlFor="duely-chat-input" className="sr-only">Message Duely</label>
           <textarea
             id="duely-chat-input"
@@ -166,7 +166,7 @@ export function ChatPanel({ period, compact = false, className, autoFocus }: { p
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
             placeholder="Ask about a client, checks, cash…"
-            className="max-h-32 min-h-[40px] flex-1 resize-none bg-transparent py-2 text-[15px] text-fg outline-none placeholder:text-fg-subtle"
+            className="chat-input max-h-32 min-h-[40px] flex-1 resize-none bg-transparent py-2 text-[15px] text-fg outline-none placeholder:text-fg-subtle"
           />
           {busy ? (
             <button type="button" onClick={() => stop()} className="grid size-10 shrink-0 place-items-center rounded-full bg-surface-3 text-fg" aria-label="Stop">

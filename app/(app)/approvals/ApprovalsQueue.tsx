@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { Check, CheckCircle2, Inbox, Loader2, RefreshCw, ShieldAlert, Sparkles, X } from "lucide-react";
+import { Check, CheckCircle2, Inbox, Loader2, RefreshCw, ShieldAlert, PenLine, X } from "lucide-react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { burstConfettiFrom } from "@/components/motion/confetti";
 
@@ -118,7 +118,7 @@ export function ApprovalsQueue({ initialDrafts, period, role, by, names, escalat
         </div>
         <button type="button" onClick={() => void load()} className="btn btn-ghost btn-sm" aria-label="Refresh"><RefreshCw className="size-4" aria-hidden="true" />Refresh</button>
         <button type="button" onClick={generate} disabled={busy === "gen"} className="btn btn-secondary btn-sm ml-auto">
-          {busy === "gen" ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}
+          {busy === "gen" ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <PenLine className="size-4" aria-hidden="true" />}
           Draft for today&apos;s top clients
         </button>
       </div>
