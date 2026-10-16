@@ -3,12 +3,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, FileText, Mail, MessageSquare, Phone, ShieldAlert, CalendarClock, Banknote, History } from "lucide-react";
 import { getCurrentResult } from "@/lib/data";
-import { getSession, PERIODS } from "@/lib/session";
+import { getMonthSelection, getSession, PERIODS } from "@/lib/session";
 import { activity, customers, openInvoices } from "@/lib/demo-tables";
 import { clientName, clientProfile } from "@/lib/clients";
 import { bucketTone, fmtDate, peso } from "@/lib/format";
-import { nextStep, scoreTone, STEP_TONE, sum } from "@/lib/view";
-import { ActionButton, Avatar, BalanceHero, Card, Chip, ListGroup, ListRow, SectionTitle } from "@/components/ui";
+import { nextStep, STEP_TONE, sum } from "@/lib/view";
+import { ActionButton, Avatar, BalanceHero, Card, Chip, ListGroup, ListRow, PriorityChip, SectionTitle } from "@/components/ui";
 import { LogContact } from "@/components/client/LogContact";
 import { DraftReminder } from "@/components/client/DraftReminder";
 
@@ -21,7 +21,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
   const code = (await params).code.toUpperCase();
   const profile = clientProfile(code);
   if (!profile) notFound();
-  const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
+  const [{ period, result }, session, sel] = await Promise.all([getCurrentResult(), getSession(), getMonthSelection()]);
   const [cust, invoices, acts] = await Promise.all([customers(period), openInvoices(period, code), activity(period, code)]);
   const c = cust.find((x) => x.client_code === code);
 
@@ -39,6 +39,13 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
   return (
     <div className="flex flex-col gap-6">
       <Link href="/clients" className="btn btn-ghost btn-sm -ml-2 self-start"><ArrowLeft className="size-4" aria-hidden="true" />Clients</Link>
+      {!sel.period && (
+        <p role="note" className="rounded-2xl border border-dashed border-primary/40 bg-primary-soft/50 px-4 py-3 text-sm">
+          <span className="font-bold">No data imported for {sel.label}.</span>{" "}
+          <span className="text-fg-muted">This client page shows the latest books, as of {PERIODS[period].label}.</span>{" "}
+          <Link href="/import" className="font-bold text-primary hover:underline">Import this month&apos;s files</Link>
+        </p>
+      )}
 
       <BalanceHero
         top={
@@ -51,7 +58,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
             <div className="flex flex-wrap justify-center gap-2">
               {row && <Chip tone="primary">#{row.rank} on today&apos;s list</Chip>}
               {step && <Chip tone={STEP_TONE[step]}>{step}</Chip>}
-              {row && <Chip tone={scoreTone(row.score)} className="num">Score {row.score}</Chip>}
+              {row && <PriorityChip score={row.score} />}
               {!row && <Chip tone="good">Up to date</Chip>}
             </div>
           </div>

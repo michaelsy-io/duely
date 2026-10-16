@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { ArrowDownRight, ArrowUpRight, Download, Flag } from "lucide-react";
 import clsx from "clsx";
 import { getCurrentResult, getResult } from "@/lib/data";
-import { PERIODS } from "@/lib/session";
+import { PERIODS, getMonthSelection } from "@/lib/session";
 import { clientName } from "@/lib/clients";
 import { BUCKETS, bucketColor, fmtDate, peso, pesoShort, pct } from "@/lib/format";
 import { Card, SectionTitle } from "@/components/ui";
@@ -39,6 +40,8 @@ function Tile({ label, value, note, delta, tone }: { label: string; value: React
 }
 
 export default async function CfoPage() {
+  const sel = await getMonthSelection();
+  if (!sel.period) return <EmptyMonth variant="cfo" sel={sel} />;
   const { period, result: r } = await getCurrentResult();
   const prev = period === "P2" ? await getResult("P1") : null;
   const k = r.kpis;

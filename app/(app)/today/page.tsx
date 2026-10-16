@@ -1,13 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { AlertTriangle, CalendarCheck2, MessageCircle, NotebookPen, Phone, PhoneOff, Wallet } from "lucide-react";
 import { getCurrentResult } from "@/lib/data";
-import { getSession, PERIODS } from "@/lib/session";
+import { getSession, PERIODS, getMonthSelection } from "@/lib/session";
 import { customers } from "@/lib/demo-tables";
 import { clientName, clientProfile } from "@/lib/clients";
 import { bucketTone, peso } from "@/lib/format";
-import { has, nextStep, rowsFor, scoreTone, STEP_TONE, sum, type NextStep } from "@/lib/view";
-import { ActionButton, Avatar, BalanceHero, Chip, ListRow, SectionTitle, StatPill } from "@/components/ui";
+import { has, nextStep, rowsFor, STEP_TONE, sum, type NextStep } from "@/lib/view";
+import { ActionButton, Avatar, BalanceHero, Chip, ListRow, PriorityChip, SectionTitle, StatPill } from "@/components/ui";
 import { AnimatedList } from "@/components/motion/AnimatedList";
 import { CountUp } from "@/components/motion/CountUp";
 import { PressLink } from "@/components/motion/Press";
@@ -23,6 +24,8 @@ const FILTERS: { slug: string; label: string; step?: NextStep }[] = [
 ];
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<{ f?: string }> }) {
+  const sel = await getMonthSelection();
+  if (!sel.period) return <EmptyMonth variant="today" sel={sel} />;
   const [{ period, result }, session, sp] = await Promise.all([getCurrentResult(), getSession(), searchParams]);
   const cust = await customers(period);
   const collectorOf = Object.fromEntries(cust.map((c) => [c.client_code, c.collector]));
@@ -114,16 +117,22 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
                 }
                 trailing={peso(r.overdue)}
                 trailingSub={
-                  <span className="flex items-center gap-1.5">
-                    <span className={`num rounded-pill px-2 py-0.5 text-[11px] font-bold ${bucketTone(r.oldestDays)}`}>{r.oldestDays}d</span>
-                    <Chip tone={scoreTone(r.score)} className="num">{r.score}</Chip>
+                  <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-1.5">
+                    <span
+                      className={`num whitespace-nowrap rounded-pill px-2 py-0.5 text-[11px] font-bold ${bucketTone(r.oldestDays)}`}
+                      title={`Oldest unpaid invoice is ${r.oldestDays} days past due`}
+                      aria-label={`Oldest unpaid invoice is ${r.oldestDays} days past due`}
+                    >
+                      {r.oldestDays}d overdue
+                    </span>
+                    <PriorityChip score={r.score} />
                   </span>
                 }
               />
             ))}
           </AnimatedList>
         )}
-        <p className="mt-3 text-xs text-fg-subtle">Score badge = priority points from the rules engine. Day chip = oldest invoice days overdue.</p>
+        <p className="mt-3 text-xs text-fg-subtle">Priority = points from the rules engine; higher means call sooner. &ldquo;Overdue&rdquo; chip = days the oldest unpaid invoice is past due.</p>
       </section>
     </div>
   );
