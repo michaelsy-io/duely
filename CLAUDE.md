@@ -2,11 +2,12 @@
 
 AR-collections app for an ophthalmic medical distributor (AIM iMBA AI Tools final project). Next.js 15 App Router + Supabase + Vercel AI SDK.
 
-New here? Read `docs/PROJECT_OVERVIEW.md` first: how the project was built, the stack, the data and how it is processed.
+New here? Read `docs/PROJECT_OVERVIEW.md` first: how the project was built, the stack, the data and how it is processed. Section 10 holds settled decisions (data ownership, escalation ladder, import and revert, roles); do not reopen them without asking Michael. Feature-complete checkpoint: 16 Oct 2026; work from there is refinement.
 
 ## Rules
 - Code does the maths, AI does the words. Every number shown or sent comes from `lib/engine`; AI text must pass `verifyNumbers` (no amount/date/doc number absent from the engine payload).
 - Nothing reaches a client without supervisor approval; final notices also need top-management approval.
+- Only the Admin imports or reverts a month. Collecting agents see only their own clients (`customers.collector`).
 - Engine = Kopi's `data/demo/business_rules.md` as implemented in `tests/fixtures/answer-key/compute_reference.py`. All thresholds in `lib/engine/rules.ts`.
 - `tests/fixtures/answer-key/` is for tests only. Never import it from app code, seed it, or index it for RAG.
 - Dates are ISO strings; the "as of" date comes from the demo clock, never `new Date()` inside the engine.
