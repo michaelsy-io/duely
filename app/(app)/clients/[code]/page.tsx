@@ -44,7 +44,11 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
         <p role="note" className="rounded-2xl border border-dashed border-primary/40 bg-primary-soft/50 px-4 py-3 text-sm">
           <span className="font-bold">No data imported for {sel.label}.</span>{" "}
           <span className="text-fg-muted">This client page shows the latest books, as of {PERIODS[period].label}.</span>{" "}
-          <Link href="/import" className="font-bold text-primary hover:underline">Import this month&apos;s files</Link>
+          {session.role === "admin" ? (
+            <Link href="/import" className="font-bold text-primary hover:underline">Import this month&apos;s files</Link>
+          ) : (
+            <span className="text-fg-muted">Your Admin imports the month-end files.</span>
+          )}
         </p>
       )}
 

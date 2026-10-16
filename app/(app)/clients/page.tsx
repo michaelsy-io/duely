@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Clients" };
 
 export default async function ClientsPage() {
   const sel = await getMonthSelection();
-  if (!sel.period) return <EmptyMonth variant="clients" sel={sel} />;
+  if (!sel.period) return <EmptyMonth variant="clients" sel={sel} canImport={(await getSession()).role === "admin"} />;
   const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
   const [cust, aging] = await Promise.all([customers(period), readTable(period, "ar_aging")]);
   const byCode = Object.fromEntries(cust.map((c) => [c.client_code, c]));

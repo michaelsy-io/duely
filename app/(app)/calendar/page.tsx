@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import clsx from "clsx";
 import { AlertTriangle, CalendarCheck2, ChevronLeft, ChevronRight, CircleDot, FileText, Handshake, LayoutDashboard, Upload } from "lucide-react";
 import { openMonthDashboard } from "@/app/actions";
-import { getMonthSelection, addMonths, inMonthRange, isMonthKey, monthLabel, MONTH_RANGE, PERIODS } from "@/lib/session";
+import { getMonthSelection, getSession, addMonths, inMonthRange, isMonthKey, monthLabel, MONTH_RANGE, PERIODS } from "@/lib/session";
 import { getMonthData } from "@/lib/calendar-data";
 import { EVENT_KINDS, monthGrid } from "@/lib/calendar";
 import { fmtDate, peso } from "@/lib/format";
@@ -25,7 +25,8 @@ function SummaryTile({ icon, label, value, note, tone }: { icon: React.ReactNode
 }
 
 export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ m?: string; d?: string }> }) {
-  const [sel, sp] = await Promise.all([getMonthSelection(), searchParams]);
+  const [sel, sp, session] = await Promise.all([getMonthSelection(), searchParams, getSession()]);
+  const canImport = session.role === "admin";
   const month = isMonthKey(sp.m) && inMonthRange(sp.m) ? sp.m : sel.month;
   const focus = typeof sp.d === "string" && sp.d.slice(0, 7) === month && /^\d{4}-\d{2}-\d{2}$/.test(sp.d) ? sp.d : null;
   const data = await getMonthData(month);
@@ -87,7 +88,11 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
                 : `Nothing in the ${data.source.label} books is dated in this month yet.`}
             </span>
           </p>
-          <Link href="/import" className="btn btn-primary btn-sm self-start sm:self-auto"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>
+          {canImport ? (
+            <Link href="/import" className="btn btn-primary btn-sm self-start sm:self-auto"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>
+          ) : (
+            <p className="text-sm font-semibold text-fg-muted">Your Admin imports the month-end files.</p>
+          )}
         </div>
       )}
 

@@ -154,11 +154,12 @@ The demo policies let the anon key read and write these tables; this is fine for
 | `/` | everyone | three.js landing page |
 | `/login` | everyone | pick a demo role: Collector, Supervisor, CFO, Admin (no password) |
 | `/today` | collector, supervisor | overdue headline, coverage bar, ranked follow-up list with next step |
+| `/log` | collector, supervisor, admin | pick a client from a searchable list (agents see only their own) and log a call, SMS, email or visit right there; `?c=C014` preselects |
 | `/clients`, `/clients/[code]` | all | search; client 360 with "why #N today", invoices, PDCs, history, log contact, draft reminder |
 | `/checks` | all | 4-week PDC board, deposit now, bounced checks |
 | `/approvals` | supervisor, CFO, admin | approve or reject drafts; final notices need CFO/Admin |
 | `/cfo` | CFO | KPIs, aging and loss rates, cash-in forecast, reps, flags, month report |
-| `/import` | admin | CSV/Excel upload wizard with column matching (demo: re-runs the demo period) |
+| `/import` | admin only | month-end CSV/Excel upload wizard with column matching (demo: re-runs the demo period). Everyone else is sent to their home page, and "Import this month's files" buttons only show for the Admin |
 | `/ask` | all | full-page chat (also a slide-over on every page) |
 
 Cookies (collecting agents sign in as Collecting Agent 1, 2 or 3; `duely_collector` holds the data name "Collector N"): `duely_month` (P1/P2 or a month key; session-only, so each visit opens on the latest month, now 30 Sep 2026), `duely_role`, `duely_collector`, `duely_theme`. Themes: `wise` (default) and `wallet` (dark); add one by following `docs/THEMES.md`, switch with `?theme=`.

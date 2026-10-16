@@ -44,7 +44,7 @@ export default async function CfoPage() {
   const [sel, session] = await Promise.all([getMonthSelection(), getSession()]);
   // Collecting agents work their own list; the company-wide view is for supervisors and management.
   if (session.role === "collector") redirect("/today");
-  if (!sel.period) return <EmptyMonth variant="cfo" sel={sel} />;
+  if (!sel.period) return <EmptyMonth variant="cfo" sel={sel} canImport={session.role === "admin"} />;
   const { period, result: r } = await getCurrentResult();
   const prev = period === "P2" ? await getResult("P1") : null;
   const k = r.kpis;

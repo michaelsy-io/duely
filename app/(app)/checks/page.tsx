@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Checks" };
 
 export default async function ChecksPage() {
   const sel = await getMonthSelection();
-  if (!sel.period) return <EmptyMonth variant="checks" sel={sel} />;
+  if (!sel.period) return <EmptyMonth variant="checks" sel={sel} canImport={(await getSession()).role === "admin"} />;
   const [{ period, result }, session] = await Promise.all([getCurrentResult(), getSession()]);
   const cust = await customers(period);
   const collectorOf = Object.fromEntries(cust.map((c) => [c.client_code, c.collector]));

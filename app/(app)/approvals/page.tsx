@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Approvals" };
 
 export default async function ApprovalsPage({ searchParams }: { searchParams: Promise<{ draft?: string }> }) {
   const sel = await getMonthSelection();
-  if (!sel.period) return <EmptyMonth variant="approvals" sel={sel} />;
+  if (!sel.period) return <EmptyMonth variant="approvals" sel={sel} canImport={(await getSession()).role === "admin"} />;
   const [{ period, result }, session, sp] = await Promise.all([getCurrentResult(), getSession(), searchParams]);
   // Demo seed: a period with no drafts at all gets a few waiting ones (only when Supabase is reachable).
   const seeded = await ensureDemoDrafts(period).catch(() => 0);

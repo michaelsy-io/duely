@@ -6,12 +6,17 @@ import { PERIODS, type MonthSelection } from "@/lib/session";
 import { BUCKETS } from "@/lib/format";
 import { BalanceHero, Card, SectionTitle, StatPill } from "@/components/ui";
 
-export type EmptyVariant = "today" | "clients" | "checks" | "cfo" | "approvals";
+export type EmptyVariant = "today" | "clients" | "log" | "checks" | "cfo" | "approvals";
 
 const DASH = "—";
 
 /** Banner shared by every empty-month dashboard: what is missing and what to do. */
-function EmptyBanner({ sel }: { sel: MonthSelection }) {
+/** Shown in place of the import button to anyone who is not the Admin. */
+function AdminImportsNote({ className }: { className?: string }) {
+  return <p className={clsx("text-sm font-semibold text-fg-muted", className)}>Your Admin imports the month-end files.</p>;
+}
+
+function EmptyBanner({ sel, canImport }: { sel: MonthSelection; canImport: boolean }) {
   const back = PERIODS[sel.dataPeriod];
   return (
     <section aria-labelledby="empty-month-title" className="anim-fade flex flex-col gap-4 rounded-card border border-dashed border-primary/40 bg-primary-soft/50 p-5 sm:flex-row sm:items-center sm:p-6">
@@ -20,9 +25,10 @@ function EmptyBanner({ sel }: { sel: MonthSelection }) {
         <p className="eyebrow">{sel.label}</p>
         <h2 id="empty-month-title" className="font-display text-xl font-extrabold tracking-tight">No month-end data for {sel.label} yet</h2>
         <p className="mt-1 text-sm text-fg-muted">This is how the dashboard will look once the files are in. Every figure stays blank until the rules engine has this month&apos;s books.</p>
+        {!canImport && <AdminImportsNote className="mt-2 text-fg" />}
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Link href="/import" className="btn btn-primary"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>
+      <div className="flex flex-wrap items-center gap-2">
+        {canImport && <Link href="/import" className="btn btn-primary"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>}
         <Link href={`/calendar?m=${sel.month}`} className="btn btn-secondary"><CalendarRange className="size-4" aria-hidden="true" />Calendar</Link>
         <form action={openMonthDashboard}>
           <input type="hidden" name="month" value={sel.dataPeriod} />
@@ -61,13 +67,17 @@ function GhostRows({ n = 4, label }: { n?: number; label: string }) {
   );
 }
 
-function EmptyNote({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+function EmptyNote({ icon, title, body, canImport }: { icon: React.ReactNode; title: string; body: string; canImport: boolean }) {
   return (
     <Card className="flex flex-col items-center gap-2 px-6 py-10 text-center">
       <span className="grid size-12 place-items-center rounded-full bg-surface-3 text-fg-muted [&_svg]:size-6">{icon}</span>
       <p className="font-display text-xl font-extrabold">{title}</p>
       <p className="max-w-md text-sm text-fg-muted">{body}</p>
-      <Link href="/import" className="btn btn-primary btn-sm mt-2"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>
+      {canImport ? (
+        <Link href="/import" className="btn btn-primary btn-sm mt-2"><Upload className="size-4" aria-hidden="true" />Import this month&apos;s files</Link>
+      ) : (
+        <AdminImportsNote className="mt-2" />
+      )}
     </Card>
   );
 }
@@ -86,8 +96,8 @@ function Tile({ label, note, primary }: { label: string; note?: string; primary?
  * The dashboard pages for a month with no imported data: same layout, blank figures ("—"),
  * and a clear call to action. Never shows a number.
  */
-export function EmptyMonth({ variant, sel }: { variant: EmptyVariant; sel: MonthSelection }) {
-  const banner = <EmptyBanner sel={sel} />;
+export function EmptyMonth({ variant, sel, canImport }: { variant: EmptyVariant; sel: MonthSelection; canImport: boolean }) {
+  const banner = <EmptyBanner sel={sel} canImport={canImport} />;
   const pill = (icon: React.ReactNode, label: string, tone: "warn" | "good" | "bad" | "primary") => (
     <StatPill icon={icon} value={<span className="text-fg-subtle">{DASH}</span>} label={label} tone={tone} />
   );
@@ -98,14 +108,16 @@ export function EmptyMonth({ variant, sel }: { variant: EmptyVariant; sel: Month
         <BalanceHero
           label={<>Overdue in all accounts · {sel.label}</>}
           amount={<span className="text-fg-subtle">{DASH}</span>}
-          sub={<>No follow-up list yet: import {sel.label}&apos;s files to rank clients.</>}
+          sub={canImport ? <>No follow-up list yet: import {sel.label}&apos;s files to rank clients.</> : <>No follow-up list yet: clients are ranked once {sel.label}&apos;s files are imported.</>}
           progress={{ value: 0, label: <>Coverage by checks on hand and promises appears here</> }}
           actions={
             <>
-              <Link href="/import" className="group flex min-w-[54px] flex-col items-center gap-1.5 rounded-2xl p-1 sm:min-w-[64px] sm:gap-2">
-                <span className="grid size-12 place-items-center rounded-full bg-primary text-primary-fg sm:size-14 [&_svg]:size-5 sm:[&_svg]:size-6"><Upload /></span>
-                <span className="text-xs font-semibold sm:text-[13px]">Import</span>
-              </Link>
+              {canImport && (
+                <Link href="/import" className="group flex min-w-[54px] flex-col items-center gap-1.5 rounded-2xl p-1 sm:min-w-[64px] sm:gap-2">
+                  <span className="grid size-12 place-items-center rounded-full bg-primary text-primary-fg sm:size-14 [&_svg]:size-5 sm:[&_svg]:size-6"><Upload /></span>
+                  <span className="text-xs font-semibold sm:text-[13px]">Import</span>
+                </Link>
+              )}
               {[{ i: <Phone />, l: "Call next" }, { i: <NotebookPen />, l: "Log contact" }].map((a) => (
                 <span key={a.l} aria-disabled="true" className="flex min-w-[54px] flex-col items-center gap-1.5 rounded-2xl p-1 opacity-50 sm:min-w-[64px] sm:gap-2">
                   <span className="grid size-12 place-items-center rounded-full bg-surface-3 text-primary-soft-fg sm:size-14 [&_svg]:size-5 sm:[&_svg]:size-6">{a.i}</span>
@@ -133,10 +145,14 @@ export function EmptyMonth({ variant, sel }: { variant: EmptyVariant; sel: Month
     );
   }
 
-  if (variant === "clients") {
+  if (variant === "clients" || variant === "log") {
     return (
       <div className="flex flex-col gap-6">
-        <Title title="Clients" sub={`Balances and follow-up order for ${sel.label} appear after import.`} />
+        {variant === "log" ? (
+          <Title title="Log contact" sub={`Pick a client to log a call, SMS, email or visit. The client list for ${sel.label} appears after import.`} />
+        ) : (
+          <Title title="Clients" sub={`Balances and follow-up order for ${sel.label} appear after import.`} />
+        )}
         {banner}
         <div className="relative" aria-hidden="true">
           <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
@@ -230,7 +246,7 @@ export function EmptyMonth({ variant, sel }: { variant: EmptyVariant; sel: Month
     <div className="flex flex-col gap-6">
       <Title title="Approvals" sub={`Nothing reaches a client without a person saying yes. Final notices also need top management. ${sel.label}.`} />
       {banner}
-      <EmptyNote icon={<Inbox />} title="No drafts for this month" body={`Reminders are drafted from the ranked follow-up list, so the queue for ${sel.label} fills after import. Drafts for earlier months stay under their own month.`} />
+      <EmptyNote canImport={canImport} icon={<Inbox />} title="No drafts for this month" body={`Reminders are drafted from the ranked follow-up list, so the queue for ${sel.label} fills after import. Drafts for earlier months stay under their own month.`} />
     </div>
   );
 }

@@ -79,7 +79,7 @@ async function waitingDrafts(period: string): Promise<number | null> {
 
 export default async function TodayPage({ searchParams }: { searchParams: Promise<{ f?: string }> }) {
   const sel = await getMonthSelection();
-  if (!sel.period) return <EmptyMonth variant="today" sel={sel} />;
+  if (!sel.period) return <EmptyMonth variant="today" sel={sel} canImport={(await getSession()).role === "admin"} />;
   const [{ period, result }, session, sp] = await Promise.all([getCurrentResult(), getSession(), searchParams]);
   const isCollector = session.role === "collector";
   const canDecide = session.role === "supervisor" || session.role === "admin";

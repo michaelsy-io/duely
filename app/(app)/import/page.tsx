@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getMonthSelection, getSession, PERIODS } from "@/lib/session";
+import { getMonthSelection, getSession, PERIODS, ROLES } from "@/lib/session";
 import { ImportWizard } from "./ImportWizard";
 
 export const metadata: Metadata = { title: "Import" };
 
 export default async function ImportPage() {
   const [sel, session] = await Promise.all([getMonthSelection(), getSession()]);
-  // Collecting agents do not import files; send them to their list.
-  if (session.role === "collector") redirect("/today");
+  // Import is the Admin's month-end job; everyone else goes back to their home page.
+  if (session.role !== "admin") redirect(ROLES[session.role].home);
   return (
     <div className="flex flex-col gap-6">
       <div>
