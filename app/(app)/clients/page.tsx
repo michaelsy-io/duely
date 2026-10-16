@@ -1,3 +1,4 @@
+import { agentName } from "@/lib/session";
 import type { Metadata } from "next";
 import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { getCurrentResult } from "@/lib/data";
@@ -26,7 +27,7 @@ export default async function ClientsPage() {
       const c = avatarColor(p.client_code);
       return {
         code: p.client_code, name: p.name, initials: initials(p.client_code), bg: c.bg, fg: c.fg,
-        segment: p.segment, area: p.area, collector: byCode[p.client_code]?.collector ?? "",
+        segment: p.segment, area: p.area, collector: agentName(byCode[p.client_code]?.collector ?? ""),
         balance: peso(bal[p.client_code] ?? 0), overdue: f ? peso(f.overdue) : null, overdueDays: f?.oldestDays ?? null, rank: f?.rank ?? null,
         tone: f ? bucketTone(f.oldestDays) : "",
       };

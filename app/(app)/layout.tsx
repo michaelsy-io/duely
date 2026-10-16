@@ -1,5 +1,5 @@
 import { getCurrentResult } from "@/lib/data";
-import { getMonthSelection, getSession, monthLabel, monthList, periodForMonth, PERIODS, ROLES } from "@/lib/session";
+import { getMonthSelection, getSession, roleChoiceId, monthLabel, monthList, periodForMonth, PERIODS, ROLES } from "@/lib/session";
 import { getTheme } from "@/lib/themes/server";
 import { themeList } from "@/lib/themes";
 import { clientName } from "@/lib/clients";
@@ -37,9 +37,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="app-content lg:ml-64">
           <Header
             greeting={greeting}
-            name={session.role === "collector" ? "Hi, Collecting Agent" : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
+            name={session.role === "collector" ? `Hi, ${session.roleLabel}` : session.role === "cfo" ? "Hi, CFO" : session.role === "admin" ? "Hi, Admin" : "Hi, Supervisor"}
             role={session.roleLabel}
-            roleId={session.role}
+            roleId={roleChoiceId(session)}
             home={ROLES[session.role].home}
             selected={sel.period ?? sel.month}
             periods={[{ id: "P2", short: PERIODS.P2.short }, { id: "P1", short: PERIODS.P1.short }]} // latest month first

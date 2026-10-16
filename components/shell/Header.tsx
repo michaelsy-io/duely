@@ -15,7 +15,8 @@ interface Props {
   greeting: string;
   name: string;
   role: string;
-  roleId: Role;
+  /** Current "view as" choice: a role, or "collector-N". */
+  roleId: string;
   /** Where the logo links: the role's first page. */
   home: string;
   /** "P1" / "P2", or a month key ("2026-10") for a month with no imported data. */
@@ -28,11 +29,13 @@ interface Props {
   notices: Notice[];
 }
 
-const ROLE_OPTIONS: { id: Role; label: string }[] = [
-  { id: "collector", label: "Collecting Agent" },
-  { id: "supervisor", label: "Supervisor" },
-  { id: "cfo", label: "CFO" },
-  { id: "admin", label: "Admin" },
+const ROLE_OPTIONS: { id: string; role: Role; label: string }[] = [
+  { id: "collector-1", role: "collector", label: "Collecting Agent 1" },
+  { id: "collector-2", role: "collector", label: "Collecting Agent 2" },
+  { id: "collector-3", role: "collector", label: "Collecting Agent 3" },
+  { id: "supervisor", role: "supervisor", label: "Supervisor" },
+  { id: "cfo", role: "cfo", label: "CFO" },
+  { id: "admin", role: "admin", label: "Admin" },
 ];
 
 function useOutside<T extends HTMLElement>(open: boolean, close: () => void) {
@@ -156,7 +159,7 @@ export function Header({ greeting, name, role, roleId, home, selected, periods, 
                 <button key={r.id} role="menuitemradio" aria-checked={roleId === r.id} type="button" onClick={() => start(async () => { await switchRole(r.id); setMenu(false); })} className="flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl px-3 py-2 text-left hover:bg-surface-2">
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold">{r.label}</span>
-                    <span className="block text-xs text-fg-muted">{ROLE_BLURB[r.id]}</span>
+                    <span className="block text-xs text-fg-muted">{ROLE_BLURB[r.role]}</span>
                   </span>
                   {roleId === r.id && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
                 </button>

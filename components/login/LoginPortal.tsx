@@ -8,8 +8,7 @@ import { signInAs } from "@/app/actions";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
 const ROLES = [
-  { id: "collector", title: "Collecting Agent", body: "Your ranked call list, checks to deposit and one-tap logging.", icon: Phone, tone: "bg-primary text-primary-fg" },
-  { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg", start: true },
+    { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg", start: true },
   { id: "cfo", title: "CFO", body: "One page: DSO, aging, cash coming in, bad debt vs allowance.", icon: Briefcase, tone: "bg-good-soft text-good-fg" },
   { id: "admin", title: "Admin", body: "Upload exports, match columns, settle reconciliation questions.", icon: Upload, tone: "bg-warn-soft text-warn-fg" },
 ];
@@ -20,8 +19,10 @@ const rise: Variants = {
   show: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE, delay: 0.06 * i } }),
 };
 
+export interface AgentChoice { id: string; label: string; clients: number }
+
 /** Animated sign-in: heading and role cards rise in, cards lift on hover, and the picked card shows it is signing in. */
-export function LoginPortal() {
+export function LoginPortal({ agents }: { agents: AgentChoice[] }) {
   return (
     <MotionProvider>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
@@ -40,7 +41,8 @@ export function LoginPortal() {
         <motion.h1 className="h-display text-[44px] sm:text-[72px]" variants={rise} initial="hidden" animate="show" custom={0}>Welcome to Duely</motion.h1>
         <motion.p className="mt-3 max-w-xl text-lg text-fg-muted" variants={rise} initial="hidden" animate="show" custom={1}>Pick a demo role to see the app the way they would.</motion.p>
         <motion.p className="mt-4 inline-flex items-center gap-2 rounded-pill bg-accent px-4 py-1.5 text-sm font-bold text-accent-fg" variants={rise} initial="hidden" animate="show" custom={2}>Demo accounts, no password needed</motion.p>
-        <form action={signInAs} className="mt-10 grid gap-4 sm:grid-cols-2">
+        <form action={signInAs} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <AgentCard agents={agents} />
           <RoleCards />
         </form>
         <motion.p className="mt-10 text-sm text-fg-subtle" variants={rise} initial="hidden" animate="show" custom={8}>Synthetic data for an ophthalmic distributor. All client names and contacts are fictional.</motion.p>
@@ -66,7 +68,7 @@ function RoleCards() {
         variants={rise}
         initial="hidden"
         animate="show"
-        custom={3 + i}
+        custom={4 + i}
         whileHover={pending ? undefined : { y: -3 }}
         whileTap={pending ? undefined : { scale: 0.98 }}
         className={`group card flex items-center gap-4 p-5 text-left transition-[border-color,box-shadow,opacity] hover:border-primary hover:shadow-float sm:p-6 ${start ? "border-primary" : ""} ${pending && !busy ? "opacity-50" : ""}`}
@@ -80,7 +82,7 @@ function RoleCards() {
         </motion.span>
         <span className="min-w-0 flex-1">
           {start && (
-            <span className="relative mb-1.5 inline-flex overflow-hidden rounded-pill bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-fg">
+            <span className="relative mb-1.5 inline-flex overflow-hidden whitespace-nowrap rounded-pill bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-fg">
               Start here for the demo
               <motion.span
                 aria-hidden="true"
@@ -94,10 +96,50 @@ function RoleCards() {
           <span className="block font-display text-2xl font-extrabold tracking-tight">{title}</span>
           <span className="mt-0.5 block text-sm text-fg-muted">{busy ? `Signing in as ${title}…` : body}</span>
         </span>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-surface-3 text-primary-soft-fg transition-transform group-hover:translate-x-1">
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-surface-3 text-primary-soft-fg transition-transform group-hover:translate-x-1 lg:hidden">
           {busy ? <Loader2 className="size-5 animate-spin" aria-hidden="true" /> : <ArrowRight className="size-5" aria-hidden="true" />}
         </span>
       </motion.button>
     );
   });
+}
+
+/** Collecting agents: one card, a button per agent (each sees only their own clients). */
+function AgentCard({ agents }: { agents: AgentChoice[] }) {
+  const { pending } = useFormStatus();
+  const [picked, setPicked] = useState<string | null>(null);
+  return (
+    <motion.div variants={rise} initial="hidden" animate="show" custom={3} className="card col-span-full flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-6">
+      <span className="flex min-w-0 flex-1 items-center gap-4">
+        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary text-primary-fg"><Phone className="size-6" aria-hidden="true" /></span>
+        <span className="min-w-0">
+          <span className="block font-display text-2xl font-extrabold tracking-tight">Collecting Agent</span>
+          <span className="mt-0.5 block text-sm text-fg-muted">Your ranked call list, checks to deposit and one-tap logging. Pick an agent to see only their clients.</span>
+        </span>
+      </span>
+      <span className="grid grid-cols-3 gap-2 sm:flex sm:shrink-0">
+        {agents.map((a) => {
+          const busy = pending && picked === a.id;
+          return (
+            <motion.button
+              key={a.id}
+              type="submit"
+              name="role"
+              value={a.id}
+              onClick={() => setPicked(a.id)}
+              disabled={pending}
+              aria-busy={busy || undefined}
+              aria-label={`Sign in as ${a.label}, ${a.clients} clients`}
+              whileHover={pending ? undefined : { y: -2 }}
+              whileTap={pending ? undefined : { scale: 0.96 }}
+              className={`flex min-h-[64px] flex-col items-center justify-center rounded-2xl border border-border bg-surface-2 px-4 py-2 transition-colors hover:border-primary hover:bg-primary-soft ${pending && !busy ? "opacity-50" : ""}`}
+            >
+              {busy ? <Loader2 className="size-5 animate-spin text-primary" aria-hidden="true" /> : <span className="font-display text-lg font-extrabold">Agent {a.label.replace(/\D/g, "")}</span>}
+              <span className="text-xs text-fg-muted">{a.clients} clients</span>
+            </motion.button>
+          );
+        })}
+      </span>
+    </motion.div>
+  );
 }

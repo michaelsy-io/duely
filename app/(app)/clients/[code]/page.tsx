@@ -1,3 +1,4 @@
+import { agentName } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -53,7 +54,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
             <Avatar code={code} size={72} />
             <div>
               <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{profile.name}</h1>
-              <p className="mt-1 text-sm text-hero-muted">{code} · {profile.segment} · {profile.area} · {c?.collector ?? row?.collector} · {c?.rep}</p>
+              <p className="mt-1 text-sm text-hero-muted">{code} · {profile.segment} · {profile.area} · {agentName(c?.collector ?? row?.collector ?? "")} · {c?.rep}</p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">
               {row && <Chip tone="primary">#{row.rank} on today&apos;s list</Chip>}
@@ -187,7 +188,7 @@ export default async function ClientPage({ params }: { params: Promise<{ code: s
                   <li key={i} className="relative text-sm">
                     <span className={`absolute -left-[27px] top-1 size-3 rounded-full border-2 border-surface ${/broke|missed|returned|bounced/i.test(a.outcome) ? "bg-bad" : /promise/i.test(a.outcome) ? "bg-warn" : "bg-primary"}`} />
                     <p className="font-bold">{a.action} · {a.outcome}</p>
-                    <p className="text-fg-muted">{fmtDate(a.activity_date)} · {a.collector} · {a.contact_role}</p>
+                    <p className="text-fg-muted">{fmtDate(a.activity_date)} · {agentName(a.collector)} · {a.contact_role}</p>
                     {a.promise_amount != null && <p className="num text-xs font-semibold text-warn-fg">Promised {peso(a.promise_amount)}{a.promise_date && ` by ${fmtDate(a.promise_date)}`}</p>}
                   </li>
                 ))}

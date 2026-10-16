@@ -126,6 +126,33 @@ export async function getPeriodFromCookie(): Promise<Period> {
   return (await getMonthSelection()).dataPeriod;
 }
 
+/** Collectors as named in Kopi's customer file. Each has a demo login, shown as "Collecting Agent N". */
+export const COLLECTORS = ["Collector 1", "Collector 2", "Collector 3"] as const;
+export const DEFAULT_COLLECTOR = "Collector 2";
+
+/** Display name for a collector from the data ("Collector 2" → "Collecting Agent 2"). */
+export function agentName(collector: string): string {
+  const m = /^Collector (\d+)$/.exec(collector);
+  return m ? `Collecting Agent ${m[1]}` : collector;
+}
+
+/** A sign-in / "view as" choice: a role, or a specific collector ("collector-1"). */
+export function parseRoleChoice(v: unknown): { role: Role; collector: string | null } | null {
+  if (typeof v !== "string") return null;
+  const m = /^collector-(\d+)$/.exec(v);
+  if (m) {
+    const c = `Collector ${m[1]}`;
+    return (COLLECTORS as readonly string[]).includes(c) ? { role: "collector", collector: c } : null;
+  }
+  if (!isRole(v)) return null;
+  return { role: v, collector: v === "collector" ? DEFAULT_COLLECTOR : null };
+}
+
+/** The choice id for a session (inverse of parseRoleChoice). */
+export function roleChoiceId(s: { role: Role; collector: string | null }): string {
+  return s.role === "collector" && s.collector ? `collector-${s.collector.replace(/\D/g, "")}` : s.role;
+}
+
 export interface Session {
   role: Role;
   roleLabel: string;
@@ -139,6 +166,7 @@ export async function getSession(): Promise<Session> {
   const jar = await cookies();
   const r = jar.get("duely_role")?.value;
   const role: Role = isRole(r) ? r : "supervisor";
-  const collector = role === "collector" ? jar.get("duely_collector")?.value || "Collector 2" : null;
-  return { role, roleLabel: ROLES[role].label, collector, signedIn: isRole(r) };
+  const saved = jar.get("duely_collector")?.value;
+  const collector = role === "collector" ? ((COLLECTORS as readonly string[]).includes(saved ?? "") ? saved! : DEFAULT_COLLECTOR) : null;
+  return { role, roleLabel: collector ? agentName(collector) : ROLES[role].label, collector, signedIn: isRole(r) };
 }

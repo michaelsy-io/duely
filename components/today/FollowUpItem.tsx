@@ -1,3 +1,4 @@
+import { agentName } from "@/lib/session";
 import Link from "next/link";
 import clsx from "clsx";
 import type { ReactNode } from "react";
@@ -54,7 +55,7 @@ export function FollowUpItem({ row, name, rank, overallRank, showCollector, acti
               <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" aria-hidden="true" />
             </summary>
             <div className="mb-1 mt-1 max-w-md rounded-2xl bg-surface-2 p-3 text-xs">
-              <p className="text-fg-muted">{row.client_code} · {row.segment}{showCollector && <> · {row.collector}</>}</p>
+              <p className="text-fg-muted">{row.client_code} · {row.segment}{showCollector && <> · {agentName(row.collector)}</>}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <span
                   className={`num whitespace-nowrap rounded-pill px-2 py-0.5 text-xs font-bold ${bucketTone(row.oldestDays)}`}
