@@ -3,7 +3,8 @@ import { EmptyMonth } from "@/components/month/EmptyMonth";
 import { ArrowDownRight, ArrowUpRight, Download, Flag } from "lucide-react";
 import clsx from "clsx";
 import { getCurrentResult, getResult } from "@/lib/data";
-import { PERIODS, getMonthSelection } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { PERIODS, getMonthSelection, getSession } from "@/lib/session";
 import { clientName } from "@/lib/clients";
 import { BUCKETS, bucketColor, fmtDate, peso, pesoShort, pct } from "@/lib/format";
 import { Card, SectionTitle } from "@/components/ui";
@@ -28,10 +29,10 @@ function Delta({ now, prev, dir, fmt }: { now: number; prev: number | undefined;
   );
 }
 
-function Tile({ label, value, note, delta, tone }: { label: string; value: React.ReactNode; note?: React.ReactNode; delta?: React.ReactNode; tone?: "bad" | "good" | "primary" }) {
+function Tile({ label, value, note, delta, tone, hint }: { label: string; value: React.ReactNode; note?: React.ReactNode; delta?: React.ReactNode; tone?: "bad" | "good" | "primary"; hint?: string }) {
   return (
     <div className={clsx("flex flex-col gap-1.5 rounded-card border p-5", tone === "primary" ? "border-transparent bg-primary text-primary-fg" : "border-border bg-surface")}>
-      <p className={clsx("text-sm font-semibold", tone === "primary" ? "opacity-80" : "text-fg-muted")}>{label}</p>
+      <p className={clsx("text-sm font-semibold", tone === "primary" ? "opacity-80" : "text-fg-muted")} title={hint}>{label}</p>
       <p className="num font-display text-[34px] font-extrabold leading-none tracking-[-0.04em] sm:text-[40px]">{value}</p>
       {note && <p className={clsx("text-xs", tone === "primary" ? "opacity-80" : tone === "bad" ? "font-semibold text-bad-fg" : "text-fg-muted")}>{note}</p>}
       {delta}
@@ -40,7 +41,9 @@ function Tile({ label, value, note, delta, tone }: { label: string; value: React
 }
 
 export default async function CfoPage() {
-  const sel = await getMonthSelection();
+  const [sel, session] = await Promise.all([getMonthSelection(), getSession()]);
+  // Collecting agents work their own list; the company-wide view is for supervisors and management.
+  if (session.role === "collector") redirect("/today");
   if (!sel.period) return <EmptyMonth variant="cfo" sel={sel} />;
   const { period, result: r } = await getCurrentResult();
   const prev = period === "P2" ? await getResult("P1") : null;
@@ -51,6 +54,8 @@ export default async function CfoPage() {
   const maxInflow = Math.max(...r.inflow.map((w) => w.total), 1);
   const avgInflow = r.inflow.reduce((a, w) => a + w.total, 0) / Math.max(r.inflow.length, 1);
   const pp = (n: number) => `${(n * 100).toFixed(1)} pts`;
+  const lowWeek = (total: number) => total < avgInflow * 0.8;
+  const lowWeeks = r.inflow.map((w, i) => ({ w, n: i + 1 })).filter(({ w }) => lowWeek(w.total));
 
   return (
     <div className="flex flex-col gap-8">
@@ -64,7 +69,7 @@ export default async function CfoPage() {
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Tile tone="primary" label="Total receivables" value={<CountUp value={k.totalAr} text={pesoShort(k.totalAr)} format="pesoShort" />} note={<>Ledger {peso(k.ledgerAr)} · gap {peso(r.control.gap)}</>} />
-        <Tile label="Days sales outstanding" value={<><CountUp value={k.dso} text={k.dso.toFixed(1)} format="fixed" digits={1} /><span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
+        <Tile label="Days sales outstanding (DSO)" hint="DSO: on average, how many days it takes to collect a sale. Lower is better." note="Average days to turn a sale into cash" value={<><CountUp value={k.dso} text={k.dso.toFixed(1)} format="fixed" digits={1} /><span className="text-lg font-bold text-fg-muted"> days</span></>} delta={<Delta now={k.dso} prev={pk?.dso} dir="lower-better" fmt={(n) => `${n.toFixed(1)} d`} />} />
         <Tile label="Collection efficiency" value={<CountUp value={k.collectionEfficiency} text={pct(k.collectionEfficiency)} format="pct" />} note="Collected this month vs collectible" delta={<Delta now={k.collectionEfficiency} prev={pk?.collectionEfficiency} dir="higher-better" fmt={pp} />} />
         <Tile label="Over 60 / over 90 days" value={<><CountUp value={k.pctOver60} text={pct(k.pctOver60)} format="pct" /> <span className="text-fg-subtle">/</span> <CountUp value={k.pctOver90} text={pct(k.pctOver90)} format="pct" /></>} note="Share of total receivables" delta={<Delta now={k.pctOver60} prev={pk?.pctOver60} dir="lower-better" fmt={pp} />} />
         <Tile label="At risk" value={<CountUp value={k.atRisk} text={peso(k.atRisk)} format="peso" />} note="90+ days plus unreplaced bounced checks" delta={<Delta now={k.atRisk} prev={pk?.atRisk} dir="lower-better" fmt={pesoShort} />} />
@@ -94,11 +99,12 @@ export default async function CfoPage() {
                   <span className="h-7 overflow-hidden rounded-lg bg-surface-2">
                     <GrowBar axis="x" delay={i * 0.06} className="block h-full rounded-lg" style={{ width: `${Math.max(0.8, (k.buckets[b] / max) * 100)}%`, background: bucketColor(b) }} />
                   </span>
-                  <span className="num w-[120px] text-right font-bold">{peso(k.buckets[b])}<span className="block text-[11px] font-semibold text-fg-subtle">loss rate {pct(k.lossRates[b], 2)}</span></span>
+                  <span className="num w-[120px] text-right font-bold">{peso(k.buckets[b])}<span className="block text-xs font-semibold text-fg-subtle" title="Loss rate: share of this age group expected never to be collected, based on past write-offs">loss rate {pct(k.lossRates[b], 2)}</span></span>
                 </li>
               );
             })}
           </ul>
+          <p className="mt-4 text-xs text-fg-muted"><span className="font-bold text-fg">Loss rate</span> is the share of each age group expected never to be collected, based on past write-offs. It drives the bad-debt estimate.</p>
         </Card>
 
         <Card>
@@ -112,8 +118,9 @@ export default async function CfoPage() {
                   <span className="bg-warn" style={{ height: `${(w.promises / w.total) * 100}%` }} title={`Promises ${peso(w.promises)}`} />
                   <span className="bg-accent" style={{ height: `${(w.currentInvoices / w.total) * 100}%` }} title={`Invoices due ${peso(w.currentInvoices)}`} />
                 </GrowBar>
-                <span className={clsx("text-xs font-bold", w.total < avgInflow * 0.8 ? "text-bad-fg" : "text-fg-muted")}>Week {i + 1}</span>
-                <span className="-mt-1.5 text-[10px] text-fg-subtle">{fmtDate(w.start, "d MMM")}</span>
+                <span className={clsx("text-xs font-bold", lowWeek(w.total) ? "text-bad-fg" : "text-fg-muted")}>Week {i + 1}</span>
+                <span className="-mt-1.5 text-xs text-fg-subtle">{fmtDate(w.start, "d MMM")}</span>
+                {lowWeek(w.total) && <span className="-mt-1 rounded-pill bg-bad-soft px-1.5 text-xs font-bold text-bad-fg">Low</span>}
               </div>
             ))}
           </div>
@@ -122,6 +129,11 @@ export default async function CfoPage() {
             <span className="flex items-center gap-1.5"><span className="size-3 rounded bg-warn" />Promises due</span>
             <span className="flex items-center gap-1.5"><span className="size-3 rounded bg-accent" />Invoices falling due</span>
           </div>
+          {lowWeeks.length > 0 && (
+            <p className="mt-3 text-xs text-fg-muted">
+              <span className="font-bold text-bad-fg">{lowWeeks.map(({ n }) => `Week ${n}`).join(" and ")} {lowWeeks.length > 1 ? "are" : "is"} low:</span> expected cash is less than 80% of the 4-week average ({pesoShort(avgInflow)} a week), so fewer checks, promises or invoices fall due then.
+            </p>
+          )}
         </Card>
       </div>
 

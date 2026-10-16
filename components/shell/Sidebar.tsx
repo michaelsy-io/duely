@@ -5,18 +5,19 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { motion } from "motion/react";
 import { Logo } from "@/components/Logo";
-import { NAV } from "./nav";
+import type { Role } from "@/lib/session";
+import { isActive, navFor } from "./nav";
 
-export function Sidebar({ periodLabel, source }: { periodLabel: string; source: string }) {
+export function Sidebar({ periodLabel, source, role }: { periodLabel: string; source: string; role: Role }) {
   const path = usePathname();
   return (
     <aside className="app-sidebar fixed inset-y-0 left-0 z-30 w-64 flex-col border-r border-border bg-nav px-4 py-6">
-      <Link href="/today" className="mb-8 px-3" aria-label="Duely home">
+      <Link href={navFor(role)[0].href} className="mb-8 px-3" aria-label="Duely home">
         <Logo />
       </Link>
       <nav aria-label="Main" className="flex flex-col gap-1">
-        {NAV.map(({ href, label, icon: Icon }) => {
-          const active = path === href || path.startsWith(href + "/");
+        {navFor(role).map(({ href, label, icon: Icon }) => {
+          const active = isActive(path, href);
           return (
             <Link
               key={href}

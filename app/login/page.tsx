@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Sign in" };
 
 const ROLES = [
   { id: "collector", title: "Collecting Agent", body: "Your ranked call list, checks to deposit and one-tap logging.", icon: Phone, tone: "bg-primary text-primary-fg" },
-  { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg" },
+  { id: "supervisor", title: "Supervisor", body: "Approve drafts with every number traced. Recommend holds.", icon: ShieldCheck, tone: "bg-accent text-accent-fg", start: true },
   { id: "cfo", title: "CFO", body: "One page: DSO, aging, cash coming in, bad debt vs allowance.", icon: Briefcase, tone: "bg-good-soft text-good-fg" },
   { id: "admin", title: "Admin", body: "Upload exports, match columns, settle reconciliation questions.", icon: Upload, tone: "bg-warn-soft text-warn-fg" },
 ];
@@ -26,16 +26,17 @@ export default function LoginPage() {
         <p className="mt-4 inline-flex items-center gap-2 rounded-pill bg-accent px-4 py-1.5 text-sm font-bold text-accent-fg">Demo accounts, no password needed</p>
 
         <form action={signInAs} className="mt-10 grid gap-4 sm:grid-cols-2">
-          {ROLES.map(({ id, title, body, icon: Icon, tone }) => (
+          {ROLES.map(({ id, title, body, icon: Icon, tone, start }) => (
             <button
               key={id}
               type="submit"
               name="role"
               value={id}
-              className="group card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary sm:p-6"
+              className={`group card flex items-center gap-4 p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary sm:p-6 ${start ? "border-primary" : ""}`}
             >
               <span className={`grid size-14 shrink-0 place-items-center rounded-full ${tone}`}><Icon className="size-6" aria-hidden="true" /></span>
               <span className="min-w-0 flex-1">
+                {start && <span className="mb-1.5 inline-flex rounded-pill bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-fg">Start here for the demo</span>}
                 <span className="block font-display text-2xl font-extrabold tracking-tight">{title}</span>
                 <span className="mt-0.5 block text-sm text-fg-muted">{body}</span>
               </span>

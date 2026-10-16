@@ -105,6 +105,12 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           ))}
           <li className="flex items-center gap-1.5"><span aria-hidden="true" className="grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-fg">1</span>Today</li>
         </ul>
+        <ul aria-label="Day shading" className="mb-3 flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted">
+          <li className="flex items-center gap-1.5"><span aria-hidden="true" className="size-4 rounded-md bg-bad-soft" />Pink day: a check bounced or a promise was missed</li>
+          <li className="flex items-center gap-1.5"><span aria-hidden="true" className="size-4 rounded-md border border-border bg-surface" />White day: something is scheduled</li>
+          <li className="flex items-center gap-1.5"><span aria-hidden="true" className="size-4 rounded-md bg-surface-2" />Shaded day: nothing scheduled</li>
+          {closeDate && <li className="flex items-center gap-1.5"><span aria-hidden="true" className="size-4 rounded-md ring-2 ring-inset ring-primary/60" />Outlined day: month-end close, when the books are counted</li>}
+        </ul>
         <MonthCalendar
           key={month}
           cells={monthGrid(month)}

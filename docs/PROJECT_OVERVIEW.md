@@ -161,7 +161,7 @@ The demo policies let the anon key read and write these tables; this is fine for
 | `/import` | admin | CSV/Excel upload wizard with column matching (demo: re-runs the demo period) |
 | `/ask` | all | full-page chat (also a slide-over on every page) |
 
-Cookies: `duely_period` (P1/P2), `duely_role`, `duely_collector`, `duely_theme`. Themes: `wise` (default) and `wallet` (dark); add one by following `docs/THEMES.md`, switch with `?theme=`.
+Cookies: `duely_period` (P1/P2 or a month key; default P2, 30 Sep 2026), `duely_role`, `duely_collector`, `duely_theme`. Themes: `wise` (default) and `wallet` (dark); add one by following `docs/THEMES.md`, switch with `?theme=`.
 
 ## 8. Run, test, deploy
 
